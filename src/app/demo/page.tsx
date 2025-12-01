@@ -7,6 +7,7 @@ import LessonsView from '@/components/demo/views/LessonsView';
 import AssetsView from '@/components/demo/views/AssetsView';
 import StudentsView from '@/components/demo/views/StudentsView';
 import SettingsView from '@/components/demo/views/SettingsView';
+import SafetyModuleCanvas from '@/components/demo/SafetyModuleCanva_AIPreview';
 
 export default function DemoPage() {
     const [activeTab, setActiveTab] = useState('modules');
@@ -17,7 +18,7 @@ export default function DemoPage() {
 
             {activeTab === 'modules' && (
                 <>
-                    <Canvas />
+                    <SafetyModuleCanvas />
                     <Inspector />
                 </>
             )}

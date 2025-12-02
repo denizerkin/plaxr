@@ -20,22 +20,18 @@ interface EngineModelProps {
     markersActive: boolean;
 }
 
-/* --- 1. Car Model Wrapper (Updated Coordinates) --- */
+/* --- 1. Car Model Wrapper --- */
 const CarModel = ({ markersActive }: EngineModelProps) => {
-  // Assuming your file is still named engine.glb, or change this to car.glb
+  // Use your car file path here
   const { scene } = useGLTF('/3d/car.glb'); 
 
   return (
     <group dispose={null}>
-      {/* Scale might need adjustment depending on your car model size */}
       <primitive object={scene} scale={1.2} position={[0, -0.5, 0]} />
 
       {markersActive && (
         <>
-          {/* Marker 1: HOT SURFACE (Engine Hood) 
-              Position: Center (x=0), Higher up (y=0.8), Front (z=1.5) 
-              Adjust 'z' if the car faces the other way.
-          */}
+          {/* Marker 1: Engine Block */}
           <Html position={[0, 0.8, 1.5]} center distanceFactor={8} zIndexRange={[100, 0]}>
             <div className="flex flex-col items-center min-w-[120px] pointer-events-none">
                 <div className="bg-orange-500/20 border border-orange-500 text-orange-400 px-2 py-1 rounded text-[10px] font-bold mb-1 uppercase tracking-tighter backdrop-blur-sm">
@@ -49,9 +45,7 @@ const CarModel = ({ markersActive }: EngineModelProps) => {
             </div>
           </Html>
 
-          {/* Marker 2: ROTATING PARTS (Front Right Wheel) 
-              Position: Right (x=0.9), Low (y=0.4), Front (z=1.2)
-          */}
+          {/* Marker 2: Brake Caliper */}
           <Html position={[0.9, 0.4, 1.2]} center distanceFactor={8} zIndexRange={[100, 0]}>
              <div className="flex flex-col items-center min-w-[120px] pointer-events-none">
                 <div className="bg-yellow-500/20 border border-yellow-500 text-yellow-400 px-2 py-1 rounded text-[10px] font-bold mb-1 uppercase tracking-tighter backdrop-blur-sm">
@@ -70,14 +64,33 @@ const CarModel = ({ markersActive }: EngineModelProps) => {
   );
 };
 
+/* --- 2. Environment Controller (Restored) --- */
+/* This handles the logic for switching between Grid and Warehouse */
+const EnvironmentController = ({ mode }: { mode: string }) => {
+    return (
+        <>
+            <Environment preset={mode === 'warehouse' ? 'city' : 'city'} background={false} />
+            {mode === 'grid' && (
+                <Grid 
+                    position={[0, -0.6, 0]} args={[10.5, 10.5]} cellSize={0.6} cellThickness={1} 
+                    cellColor="#06b6d4" sectionSize={3.3} sectionThickness={1.5} sectionColor="#334155" 
+                    fadeDistance={30} infiniteGrid 
+                />
+            )}
+        </>
+    );
+};
 
 
-/* --- 3. Main Page --- */
+/* --- 4. Main Page --- */
 const SafetyModuleCanvas = () => {
     const [environment, setEnvironment] = useState('grid');
     const [showAiLayer, setShowAiLayer] = useState(true);
     const [markersActive, setMarkersActive] = useState(false);
     const [mounted, setMounted] = useState(false);
+    
+    // NEW: State to control the dropdown menu
+    const [isEnvMenuOpen, setEnvMenuOpen] = useState(false);
 
     useEffect(() => { setMounted(true); }, []);
 
@@ -88,7 +101,6 @@ const SafetyModuleCanvas = () => {
     };
 
     return (
-        // Flex container to hold Canvas (Left) and Sidebar (Right)
         <div className="flex w-full h-screen bg-slate-950 font-sans selection:bg-cyan-500/30 overflow-hidden">
             
             {/* === LEFT SIDE: 3D CANVAS === */}
@@ -102,18 +114,37 @@ const SafetyModuleCanvas = () => {
                     <button className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 rounded transition-colors"><Maximize className="h-5 w-5" /></button>
                     <div className="w-px h-8 bg-slate-700 mx-2"></div>
                     
-                    <div className="relative group">
-                        <button className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-700 rounded transition-colors flex items-center space-x-2">
+                    {/* --- FIXED DROPDOWN --- */}
+                    <div className="relative">
+                        <button 
+                            // 1. Toggle state on click instead of hover
+                            onClick={() => setEnvMenuOpen(!isEnvMenuOpen)}
+                            className={`p-2 rounded transition-colors flex items-center space-x-2 ${isEnvMenuOpen ? 'text-cyan-400 bg-slate-700' : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700'}`} 
+                            title="Environment"
+                        >
                             <Globe className="h-5 w-5" />
                         </button>
-                        <div className="absolute top-full left-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-md shadow-xl overflow-hidden hidden group-hover:block z-50">
-                            {['grid', 'warehouse'].map(env => (
-                                <button key={env} onClick={() => setEnvironment(env)} className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 capitalize ${environment === env ? 'text-cyan-400' : 'text-slate-300'}`}>
-                                    {env} View
-                                </button>
-                            ))}
-                        </div>
+                        
+                        {/* 2. Show/Hide based on 'isEnvMenuOpen' state */}
+                        {isEnvMenuOpen && (
+                            <div className="absolute top-full left-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-md shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                                {['grid', 'warehouse'].map(env => (
+                                    <button 
+                                        key={env} 
+                                        onClick={() => {
+                                            setEnvironment(env);
+                                            setEnvMenuOpen(false); // 3. Close menu when an item is selected
+                                        }} 
+                                        className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 capitalize ${environment === env ? 'text-cyan-400' : 'text-slate-300'}`}
+                                    >
+                                        {env} View
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
+                    {/* ---------------------- */}
+
                     <button onClick={() => setShowAiLayer(!showAiLayer)} className={`p-2 rounded transition-colors ml-2 ${showAiLayer ? 'text-purple-400 bg-purple-900/30' : 'text-slate-400 hover:text-purple-400'}`}>
                         <Sparkles className="h-5 w-5" />
                     </button>
@@ -129,11 +160,9 @@ const SafetyModuleCanvas = () => {
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
                             <spotLight position={[-5, 5, 5]} intensity={1} color="#06b6d4" />
-                            <Environment preset={environment === 'warehouse' ? 'city' : 'city'} background={false} />
                             
-                            {environment === 'grid' && (
-                                <Grid position={[0, -0.6, 0]} args={[10.5, 10.5]} cellSize={0.6} cellThickness={1} cellColor="#06b6d4" sectionSize={3.3} sectionThickness={1.5} sectionColor="#334155" fadeDistance={30} infiniteGrid />
-                            )}
+                            {/* Controller logic for switching grid/warehouse */}
+                            <EnvironmentController mode={environment} />
 
                             <Suspense fallback={null}>
                                 <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
@@ -179,7 +208,7 @@ const SafetyModuleCanvas = () => {
                     </div>
                 </div>
 
-                {/* Bottom Status Bar (Inside Left Panel) */}
+                {/* Bottom Status Bar */}
                 <div className="h-8 bg-slate-900 border-t border-slate-800 flex items-center px-4 text-xs text-slate-500 justify-between z-20">
                     <div className="flex space-x-4 font-mono"><span>X: 12.5</span><span>Y: 0.0</span><span>Z: -5.2</span></div>
                     <div className="flex items-center gap-4"><span className="flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-cyan-500"></span> Online</span><span>Mode: {environment}</span></div>

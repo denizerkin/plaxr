@@ -34,7 +34,10 @@ const Hero = () => {
             <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2 bg-slate-800 flex items-center justify-center overflow-hidden">
                 {/* Placeholder for 3D/XR Visual */}
                 <div className="relative w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-900">
-                    <div className="absolute inset-0 bg-[url('/images/ai_generated_image.png')] bg-cover bg-center opacity-60"></div>
+                    <div
+                        className="absolute inset-0 bg-cover bg-center opacity-60"
+                        style={{ backgroundImage: `url('${process.env.NEXT_PUBLIC_BASE_PATH || ''}/images/ai_generated_image.png')` }}
+                    ></div>
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/80 to-transparent"></div>
                     <div className="absolute inset-0 bg-gradient-to-b from-slate-900 via-transparent to-slate-900"></div>
                     <div className="relative z-10 p-8 text-center">

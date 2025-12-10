@@ -10,6 +10,14 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
+
+    // 4. Expose base path to the client
+    env: {
+        NEXT_PUBLIC_BASE_PATH: '/plaxr',
+    },
+
+    // 5. Enable trailing slash for GitHub Pages compatibility
+    trailingSlash: true,
 };
 
 module.exports = nextConfig;

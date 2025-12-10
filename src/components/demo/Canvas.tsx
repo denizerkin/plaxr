@@ -6,15 +6,19 @@ const Canvas = () => {
     const [environment, setEnvironment] = useState('grid');
 
     const getBackgroundStyle = () => {
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
         switch (environment) {
             case 'warehouse':
-                return "bg-[url('/images/warehouse.png')] bg-cover bg-center";
+                return { className: "bg-cover bg-center", style: { backgroundImage: `url('${basePath}/images/warehouse.png')` } };
             case 'office':
-                return "bg-[url('/images/office.png')] bg-cover bg-center";
+                return { className: "bg-cover bg-center", style: { backgroundImage: `url('${basePath}/images/office.png')` } };
             case 'outdoor':
-                return "bg-[url('/images/outdoor.png')] bg-cover bg-center";
+                return { className: "bg-cover bg-center", style: { backgroundImage: `url('${basePath}/images/outdoor.png')` } };
             default: // grid
-                return "bg-[linear-gradient(rgba(30,41,59,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(30,41,59,0.5)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]";
+                return {
+                    className: "bg-[linear-gradient(rgba(30,41,59,0.5)_1px,transparent_1px),linear-gradient(90deg,rgba(30,41,59,0.5)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]",
+                    style: {}
+                };
         }
     };
 
@@ -51,7 +55,7 @@ const Canvas = () => {
 
             {/* 3D Viewport Placeholder */}
             <div className="flex-1 relative grid place-items-center transition-colors duration-500">
-                <div className={`absolute inset-0 ${getBackgroundStyle()}`}></div>
+                <div className={`absolute inset-0 ${getBackgroundStyle().className}`} style={getBackgroundStyle().style}></div>
 
                 {/* Simulated Floor Plane for 3D feel */}
                 {environment !== 'grid' && (

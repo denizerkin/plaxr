@@ -1,30 +1,31 @@
 import { User } from 'lucide-react';
 
 const Team = () => {
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     const team = [
         {
             name: 'Asen',
-            image: '/images/Asen.jpg',
+            image: `${basePath}/images/Asen.jpg`,
         },
         {
             name: 'Deniz',
-            image: '/images/Deniz.png',
+            image: `${basePath}/images/Deniz.png`,
         },
         {
             name: 'Elliot',
-            image: '/images/Elliot.jpg',
+            image: `${basePath}/images/Elliot.jpg`,
         },
         {
             name: 'Fariborz',
-            image: '/images/Fariborz.jpg',
+            image: `${basePath}/images/Fariborz.jpg`,
         },
         {
             name: 'Francesco',
-            image: '/images/Francesco.jpg',
+            image: `${basePath}/images/Francesco.jpg`,
         },
         {
             name: 'Niccolo',
-            image: '/images/Niccolo.png',
+            image: `${basePath}/images/Niccolo.png`,
         },
     ];
 

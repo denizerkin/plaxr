@@ -1,9 +1,10 @@
 # File: .github/workflows/publish.yml
 name: publish-to-github-pages
+
 on:
   push:
     branches:
-      - main
+      - main  # I see you are using 'main', which is correct!
 
 permissions:
   contents: read
@@ -22,8 +23,19 @@ jobs:
       - name: Checkout 🛎️
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ⚙️ - Cache dependencies ⚡ - Install dependencies 🔧
-        uses: ./.github/workflows/setup-node
+      # --- THIS SECTION IS FIXED ---
+      # We removed "uses: ./.github/workflows/setup-node" 
+      # and put the real steps right here instead:
+      
+      - name: Setup Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies 🔧
+        run: npm ci
+      # -----------------------------
 
       - name: Setup Pages ⚙️
         uses: actions/configure-pages@v4

@@ -169,6 +169,8 @@ const SafetyModuleCanvas = () => {
     const [isRecording, setIsRecording] = useState(false);
     const [isGenerating, setIsGenerating] = useState(false);
     const [activeAiTab, setActiveAiTab] = useState<'assistant' | 'generator'>('assistant');
+    const [lessonName, setLessonName] = useState('Engine_Repair_Diagnostics_101');
+    const [lessonDuration, setLessonDuration] = useState('20 min');
 
     // NEW: Interactive Steps State
     // Convert static steps to state to allow editing
@@ -469,6 +471,10 @@ const SafetyModuleCanvas = () => {
                 currentScript={currentStep.script}
                 currentStepTitle={currentStep.title}
                 onScriptChange={handleScriptChange}
+                lessonName={lessonName}
+                onLessonNameChange={setLessonName}
+                lessonDuration={lessonDuration}
+                onLessonDurationChange={setLessonDuration}
             />
 
         </div>

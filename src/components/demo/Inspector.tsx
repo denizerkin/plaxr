@@ -4,9 +4,13 @@ interface InspectorProps {
   currentScript?: string;
   currentStepTitle?: string;
   onScriptChange?: (newScript: string) => void;
+  lessonName?: string;
+  onLessonNameChange?: (newName: string) => void;
+  lessonDuration?: string;
+  onLessonDurationChange?: (newDuration: string) => void;
 }
 
-const Inspector = ({ currentScript, currentStepTitle, onScriptChange }: InspectorProps) => {
+const Inspector = ({ currentScript, currentStepTitle, onScriptChange, lessonName, onLessonNameChange, lessonDuration, onLessonDurationChange }: InspectorProps) => {
   return (
     <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col h-full z-20">
       {/* Properties Panel */}
@@ -46,49 +50,45 @@ const Inspector = ({ currentScript, currentStepTitle, onScriptChange }: Inspecto
               </label>
               <input
                 type="text"
-                value="Engine_Repair_Diagnostics_101"
+                value={lessonName}
+                onChange={(e) => onLessonNameChange?.(e.target.value)}
                 className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
-                readOnly
               />
               <p className="mt-1 text-[11px] text-slate-500">
                 Internal ID for this XR maintenance scenario.
               </p>
             </div>
 
-            {/* Target Vehicle */}
+            {/* Target Machine */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
                 Target Vehicle
               </label>
-              <div className="relative">
-                <select className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white appearance-none focus:outline-none focus:border-cyan-500">
+              <div className="grid grid-cols-2 gap-2">
+                <select className="col-span-2 w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
                   <option>Sports Coupe (GT3)</option>
                   <option>Sedan</option>
                   <option>SUV</option>
-                  <option>Light Truck</option>
+                  <option>Pick-up Truck</option>
                 </select>
-                <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-500 pointer-events-none" />
               </div>
             </div>
 
-            {/* Template / scenario type */}
+            {/* Scenario template */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
                 Scenario template
               </label>
-              <div className="relative">
-                <select className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white appearance-none focus:outline-none focus:border-cyan-500">
-                  <option>Engine Overhaul</option>
-                  <option>Routine Maintenance</option>
-                  <option>Diagnostics (OBDII)</option>
-                  <option>Part Replacement</option>
-                </select>
-                <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-500 pointer-events-none" />
-              </div>
+              <select className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-500">
+                <option>Engine Overhaul</option>
+                <option>Routine Maintenance</option>
+                <option>Diagnostics (OBDII)</option>
+                <option>Brake System Check</option>
+              </select>
             </div>
 
             {/* Scenario metadata instead of raw Transform */}
-            <div className="pt-4 border-t border-slate-800">
+            <div className="pt-2 border-t border-slate-800">
               <h3 className="text-xs font-medium text-slate-500 mb-3">
                 Scenario metadata
               </h3>
@@ -109,9 +109,9 @@ const Inspector = ({ currentScript, currentStepTitle, onScriptChange }: Inspecto
                   </label>
                   <input
                     type="text"
-                    value="20 min"
-                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white"
-                    readOnly
+                    value={lessonDuration}
+                    onChange={(e) => onLessonDurationChange?.(e.target.value)}
+                    className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white focus:outline-none focus:border-cyan-500"
                   />
                 </div>
                 <div className="space-y-1">

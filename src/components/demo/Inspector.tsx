@@ -1,16 +1,44 @@
-import { Bot, ChevronDown, Plus, Settings } from 'lucide-react';
+import { Bot, ChevronDown, Plus, Settings, Save } from 'lucide-react';
 
-const Inspector = () => {
+interface InspectorProps {
+  currentScript?: string;
+  currentStepTitle?: string;
+  onScriptChange?: (newScript: string) => void;
+}
+
+const Inspector = ({ currentScript, currentStepTitle, onScriptChange }: InspectorProps) => {
   return (
-    <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col">
+    <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col h-full z-20">
       {/* Properties Panel */}
       <div className="flex-1 overflow-y-auto">
         <div className="p-4 border-b border-slate-800">
-          <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4">
-            Lesson Properties
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+              Lesson Properties
+            </h2>
+            <button className="flex items-center gap-1 text-[10px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/20 px-2 py-1 rounded transition-colors">
+              <Save className="w-3 h-3" />
+              SAVE
+            </button>
+          </div>
 
           <div className="space-y-4">
+            {/* Script Field (Integrated) */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Step Script
+              </label>
+              <textarea
+                value={currentScript || ""}
+                onChange={(e) => onScriptChange?.(e.target.value)}
+                placeholder="Enter script for this step..."
+                className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-cyan-500 min-h-[80px] text-xs leading-relaxed resize-none transition-colors focus:bg-slate-800/80"
+              />
+              <p className="mt-1 text-[11px] text-slate-500">
+                {currentStepTitle ? `Script for: ${currentStepTitle}` : "Script for current step"}
+              </p>
+            </div>
+
             {/* Lesson name */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
@@ -18,7 +46,7 @@ const Inspector = () => {
               </label>
               <input
                 type="text"
-                value="GT3RS_BrakePads_Change"
+                value="Engine_Repair_Diagnostics_101"
                 className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500"
                 readOnly
               />
@@ -27,17 +55,17 @@ const Inspector = () => {
               </p>
             </div>
 
-            {/* Target vehicle */}
+            {/* Target Vehicle */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
-                Target vehicle
+                Target Vehicle
               </label>
               <div className="relative">
                 <select className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white appearance-none focus:outline-none focus:border-cyan-500">
-                  <option>Porsche 911 GT3 RS (992)</option>
-                  <option>Tesla Model 3</option>
-                  <option>BMW i4</option>
-                  <option>Toyota Corolla</option>
+                  <option>Sports Coupe (GT3)</option>
+                  <option>Sedan</option>
+                  <option>SUV</option>
+                  <option>Light Truck</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-500 pointer-events-none" />
               </div>
@@ -50,10 +78,10 @@ const Inspector = () => {
               </label>
               <div className="relative">
                 <select className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white appearance-none focus:outline-none focus:border-cyan-500">
-                  <option>Brake service procedure</option>
-                  <option>Track-day pre-inspection</option>
-                  <option>High-voltage safety (EV)</option>
-                  <option>General workshop safety</option>
+                  <option>Engine Overhaul</option>
+                  <option>Routine Maintenance</option>
+                  <option>Diagnostics (OBDII)</option>
+                  <option>Part Replacement</option>
                 </select>
                 <ChevronDown className="absolute right-3 top-2.5 h-4 w-4 text-slate-500 pointer-events-none" />
               </div>
@@ -81,7 +109,7 @@ const Inspector = () => {
                   </label>
                   <input
                     type="text"
-                    value="25 min"
+                    value="20 min"
                     className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white"
                     readOnly
                   />
@@ -91,9 +119,9 @@ const Inspector = () => {
                     Environment
                   </label>
                   <select className="w-full bg-slate-800 border border-slate-700 rounded px-2 py-1 text-[11px] text-white focus:outline-none focus:border-cyan-500">
-                    <option>Pit-lane garage</option>
-                    <option>Workshop bay</option>
-                    <option>Outdoor track</option>
+                    <option>Service Bay</option>
+                    <option>Garage</option>
+                    <option>Showroom</option>
                   </select>
                 </div>
               </div>
@@ -113,11 +141,11 @@ const Inspector = () => {
           </div>
           <div className="space-y-2 text-xs">
             {[
-              'Vehicle anchor & reset position',
-              'Hotspots: wheel, caliper & disc',
-              'Torque wrench interaction',
-              'PPE & safety overlay (PPE check)',
-              'Assessment checkpoints & scoring',
+              'OBDII Scanner Tool',
+              'Hotspots: Engine, Battery, ECU',
+              'Part Removal Interaction',
+              'Torque Wrench Feedback',
+              'Quiz: Identify Failed Part',
             ].map((comp) => (
               <div
                 key={comp}
@@ -143,13 +171,12 @@ const Inspector = () => {
         </div>
         <div className="bg-slate-900 rounded-lg p-3 mb-3 border border-slate-800">
           <p className="text-xs text-slate-300">
-            You&apos;re designing a brake pads change lesson for the{" "}
+            You&apos;re designing a diagnostics module for the{" "}
             <span className="text-cyan-400">
-              Porsche 911 GT3 RS (992)
+              Porsche 911 GT3 RS
             </span>
-            . Want me to generate a step-by-step XR flow (lift car, remove
-            wheel, inspect pads/discs, reinstall, torque check) with safety
-            callouts and markers?
+            . Want me to generate a flow for scanning OBDII codes, inspecting
+            spark plugs, and replacing ignition coils?
           </p>
         </div>
         <div className="flex space-x-2">

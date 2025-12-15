@@ -19,7 +19,6 @@ export default function DemoPage() {
             {activeTab === 'modules' && (
                 <>
                     <SafetyModuleCanvas />
-                    <Inspector />
                 </>
             )}
 

@@ -12,8 +12,8 @@ const Team = () => {
             image: `${basePath}/images/Deniz.png`,
         },
         {
-            name: 'Elliot',
-            image: `${basePath}/images/Elliot.jpg`,
+            name: 'Eliott',
+            image: `${basePath}/images/eliott.png`,
         },
         {
             name: 'Fariborz',

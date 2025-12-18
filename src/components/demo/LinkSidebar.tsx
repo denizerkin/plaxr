@@ -8,9 +8,9 @@ const LinkSidebar = () => {
 
     const navItems = [
         { name: 'Lessons', id: 'lessons', href: '/lessons', icon: FileText, active: pathname.startsWith('/lessons') },
-        { name: 'Assets', id: 'assets', href: '/demo', icon: Box, active: false },
-        { name: 'Students', id: 'students', href: '/demo', icon: Users, active: false },
-        { name: 'Settings', id: 'settings', href: '/demo', icon: Settings, active: false },
+        { name: 'Assets', id: 'assets', href: '/demo?view=assets', icon: Box, active: false },
+        { name: 'Students', id: 'students', href: '/demo?view=students', icon: Users, active: false },
+        { name: 'Settings', id: 'settings', href: '/demo?view=settings', icon: Settings, active: false },
     ];
 
     return (

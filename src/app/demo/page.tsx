@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Sidebar from '@/components/demo/Sidebar';
 import Canvas from '@/components/demo/Canvas';
@@ -10,7 +10,7 @@ import StudentsView from '@/components/demo/views/StudentsView';
 import SettingsView from '@/components/demo/views/SettingsView';
 import SafetyModuleCanvas from '@/components/demo/SafetyModuleCanva_AIPreview';
 
-export default function DemoPage() {
+function DemoContent() {
     const searchParams = useSearchParams();
     const [activeTab, setActiveTab] = useState('modules');
 
@@ -36,5 +36,13 @@ export default function DemoPage() {
             {activeTab === 'students' && <StudentsView />}
             {activeTab === 'settings' && <SettingsView />}
         </div>
+    );
+}
+
+export default function DemoPage() {
+    return (
+        <Suspense fallback={<div className="flex h-screen bg-slate-950 text-white items-center justify-center">Loading...</div>}>
+            <DemoContent />
+        </Suspense>
     );
 }

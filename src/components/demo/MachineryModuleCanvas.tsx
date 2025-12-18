@@ -18,15 +18,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import * as THREE from 'three';
+import Inspector from './Inspector';
 
 /* --- Types --- */
 interface EngineModelProps {
     markersActive: boolean;
 }
-
-/* --- Data: Steps --- */
-// Define the content for each step of the module creation/preview flow
-
 
 /* --- 3D Component: Focus Arrow --- */
 const FocusArrow = ({ position, target }: { position: [number, number, number], target: [number, number, number] }) => {
@@ -54,7 +51,6 @@ const FocusArrow = ({ position, target }: { position: [number, number, number], 
 
 
 /* --- 2. Environment Controller (Restored) --- */
-/* This handles the logic for switching between Grid and Warehouse */
 const EnvironmentController = ({ mode }: { mode: string }) => {
     return (
         <>
@@ -71,38 +67,67 @@ const EnvironmentController = ({ mode }: { mode: string }) => {
 };
 
 
-/* --- Data: Steps (ENGINE REPAIR) --- */
-/* --- Data: Steps (ENGINE REPAIR) --- */
+/* --- Data: Steps (MACHINERY REPAIR - Placeholder) --- */
 export const initialSteps = [
     {
         id: 1,
-        title: 'Diagnostics Start',
-        script: 'Connect the OBDII scanner to the port located under the driver side dashboard. Scan for error codes. We are looking for P0300 (Random/Multiple Cylinder Misfire).',
-        arrowTarget: [0.5, 1.4, 0.5], // Dashboard area
-        arrowPosition: [1.0, 1.8, 0.8] // Closer zoom
+        title: 'Start Machine',
+        script: 'Locate the green start button on the main control panel. Press it firmly to initiate the motor startup sequence.',
+        arrowTarget: [0, 3.5, 0.5],
+        arrowPosition: [1.5, 3.5, 2.0]
     },
     {
         id: 2,
-        title: 'Engine Access',
-        script: 'Open the hood and secure the prop rod. Locust the plastic engine cover. Pull upwards gently on the corners to disengage the rubber grommets and set the cover aside.',
-        arrowTarget: [0, 1.5, 1.5], // Top of engine
-        arrowPosition: [0, 2.0, 2.0] // Closer zoom
+        title: 'Safety Measures',
+        script: 'Ensure the clear safety guard is lowered completely. Verify the emergency stop button is not engaged and is easily accessible.',
+        arrowTarget: [0, 3.8, -0.5],
+        arrowPosition: [-1.5, 4.0, 1.0]
     },
     {
         id: 3,
-        title: 'Component Inspection',
-        script: 'Inspect the ignition coils for any visible cracks or signs of arcing. Remove the coil from Cylinder 3 and inspect the spark plug tip for fouling or excessive gap wear.',
-        arrowTarget: [0.2, 1.4, 1.5], // Specific cylinder area
-        arrowPosition: [0.4, 1.8, 1.8] // Very close zoom
+        title: 'Material Placement',
+        script: 'Place the material securely on the cutting bed. Ensure it is flush against the back fence and clamped down if necessary.',
+        arrowTarget: [0, 2.6, 0],
+        arrowPosition: [0, 3.5, 2.0]
     },
     {
         id: 4,
-        title: 'Verification',
-        script: 'Reinstall the spark plug and coil. Clear the error codes on the scanner. Start the engine and monitor the idle RPM. Ensure the check engine light does not return.',
-        arrowTarget: [0, 1.3, 1.5], // General engine view
-        arrowPosition: [-0.8, 1.8, 2.0] // Closer zoom
+        title: 'Operation',
+        script: 'With hands clear of the blade path, slowly pull the handle down to cut through the material using steady, even pressure.',
+        arrowTarget: [0, 3.0, 0],
+        arrowPosition: [2.0, 4.0, 2.0]
     }
 ];
+
+/* --- 1. Machinery Model Wrapper --- */
+const MachineryModel = ({ markersActive }: EngineModelProps) => {
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+    // CHANGED: Loading machinery.glb instead of car.glb
+    const { scene } = useGLTF(`${basePath}/3d/machinery.glb`);
+
+    return (
+        <group dispose={null}>
+            {/* Manual Reset to 0 (Ground Level) */}
+            <primitive object={scene} scale={1.2} position={[0, 1.2, 0]} />
+
+            {markersActive && (
+                <>
+                    {/* Placeholder Marker */}
+                    <Html position={[0, 1.5, 0]} center distanceFactor={8} zIndexRange={[100, 0]}>
+                        <div className="flex flex-col items-center min-w-[120px] pointer-events-none">
+                            <div className="bg-orange-500/20 border border-orange-500 text-orange-400 px-2 py-1 rounded text-[10px] font-bold mb-1 uppercase tracking-tighter backdrop-blur-sm">
+                                Control Panel
+                            </div>
+                            <div className="w-8 h-8 rounded-full border-2 border-orange-500 flex items-center justify-center bg-black/50">
+                                <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+                            </div>
+                        </div>
+                    </Html>
+                </>
+            )}
+        </group>
+    );
+};
 
 /* --- Simulated Audio Player Component (Now with TTS) --- */
 const AudioPlayer = ({ text }: { text: string }) => {
@@ -151,60 +176,7 @@ const AudioPlayer = ({ text }: { text: string }) => {
     );
 }
 
-/* --- 1. Car Model Wrapper --- */
-const CarModel = ({ markersActive }: EngineModelProps) => {
-    // Use your car file path here
-    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
-    const { scene } = useGLTF(`${basePath}/3d/car.glb`);
-
-    return (
-        <group dispose={null}>
-            {/* Manual Reset to 0 (Ground Level) */}
-            <primitive object={scene} scale={1.2} position={[0, 0, 0]} />
-
-            {markersActive && (
-                <>
-                    {/* Marker 1: Engine Block */}
-                    <Html position={[0, 1.5, 1.5]} center distanceFactor={8} zIndexRange={[100, 0]}>
-                        <div className="flex flex-col items-center min-w-[120px] pointer-events-none">
-                            <div className="bg-orange-500/20 border border-orange-500 text-orange-400 px-2 py-1 rounded text-[10px] font-bold mb-1 uppercase tracking-tighter backdrop-blur-sm">
-                                Engine Block
-                            </div>
-                            <div className="w-8 h-8 rounded-full border-2 border-orange-500 flex items-center justify-center bg-black/50">
-                                <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
-                            </div>
-                            <div className="w-px h-8 bg-orange-500/50"></div>
-                            <div className="w-1.5 h-1.5 bg-orange-500 rounded-full shadow-[0_0_10px_orange]"></div>
-                        </div>
-                    </Html>
-
-                    {/* Marker 2: ECU / Electrical */}
-                    <Html position={[0.5, 1.4, 1.2]} center distanceFactor={8} zIndexRange={[100, 0]}>
-                        <div className="flex flex-col items-center min-w-[120px] pointer-events-none">
-                            <div className="bg-cyan-500/20 border border-cyan-500 text-cyan-400 px-2 py-1 rounded text-[10px] font-bold mb-1 uppercase tracking-tighter backdrop-blur-sm">
-                                ECU Unit
-                            </div>
-                            <div className="w-8 h-8 rounded-full border-2 border-cyan-500 flex items-center justify-center bg-black/50">
-                                <Sparkles className="w-4 h-4 text-cyan-500 animate-pulse" />
-                            </div>
-                            <div className="w-px h-6 bg-cyan-500/50"></div>
-                            <div className="w-1.5 h-1.5 bg-cyan-500 rounded-full shadow-[0_0_10px_cyan]"></div>
-                        </div>
-                    </Html>
-                </>
-            )}
-        </group>
-    );
-};
-
-
-
-/* --- 4. Main Page --- */
-import Inspector from './Inspector'; // Import the Inspector component
-
-
-
-const SafetyModuleCanvas = () => {
+const MachineryModuleCanvas = () => {
     const [environment, setEnvironment] = useState('grid');
     const [showAiLayer, setShowAiLayer] = useState(true);
     const [markersActive, setMarkersActive] = useState(false);
@@ -214,16 +186,13 @@ const SafetyModuleCanvas = () => {
     const [isGenerating, setIsGenerating] = useState(false);
     const [activeAiTab, setActiveAiTab] = useState<'assistant' | 'generator' | 'system'>('assistant');
     const [isSystemChecking, setIsSystemChecking] = useState(true);
-    const [lessonName, setLessonName] = useState('Engine_Repair_Diagnostics_101');
-    const [lessonDuration, setLessonDuration] = useState('20 min');
+    const [lessonName, setLessonName] = useState('Industrial_Saw_Safety_Operation');
+    const [lessonDuration, setLessonDuration] = useState('30 min');
 
-    // NEW: Interactive Steps State
-    // Convert static steps to state to allow editing
     const [stepsData, setStepsData] = useState(initialSteps);
     const [activeStepIndex, setActiveStepIndex] = useState(0);
     const currentStep = stepsData[activeStepIndex];
 
-    // Handler for updating the script of the current step
     const handleScriptChange = (newScript: string) => {
         const updatedSteps = [...stepsData]; // Create a copy
         updatedSteps[activeStepIndex] = {
@@ -285,7 +254,7 @@ const SafetyModuleCanvas = () => {
                 {/* === DOCKED TIMELINE (Footer Style) === */}
                 <div className="absolute bottom-0 left-0 right-0 z-30 flex flex-col pointer-events-none w-full bg-slate-900 border-t border-slate-700 h-44 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
 
-                    {/* Label Tab (Optional - keeping it for context but moving it inside or above) */}
+                    {/* Label Tab */}
                     <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 pointer-events-auto bg-slate-900 border-t border-x border-slate-700 rounded-t-xl px-6 py-1.5 shadow-xl flex items-center gap-2">
                         <Layers className="w-4 h-4 text-cyan-400" />
                         <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300">
@@ -305,9 +274,7 @@ const SafetyModuleCanvas = () => {
                                         onClick={() => setActiveStepIndex(index)}
                                         className="flex flex-col items-center group/item relative focus:outline-none"
                                     >
-                                        {/* Container for Dot & Delete Button - Ensures relative positioning works correctly */}
                                         <div className="relative">
-                                            {/* Indicator Dot */}
                                             <div className={`w-16 h-16 rounded-full border-2 flex items-center justify-center text-xl font-bold z-10 transition-all duration-300 bg-slate-900 ${index === activeStepIndex
                                                 ? 'border-cyan-500 text-cyan-400 scale-110 shadow-[0_0_25px_rgba(6,182,212,0.4)]'
                                                 : 'border-slate-600 text-slate-500 hover:border-cyan-400 hover:text-cyan-400'
@@ -315,7 +282,6 @@ const SafetyModuleCanvas = () => {
                                                 {index + 1}
                                             </div>
 
-                                            {/* Delete Button (Visible on Hover/Active) - Anchored to the Dot */}
                                             {stepsData.length > 1 && (
                                                 <div
                                                     onClick={(e) => handleDeleteStep(e, index)}
@@ -327,7 +293,6 @@ const SafetyModuleCanvas = () => {
                                             )}
                                         </div>
 
-                                        {/* Text Label - Zero width container to maintain spacing but add height for centering */}
                                         <div className="mt-4 w-0 flex justify-center overflow-visible">
                                             <span className={`whitespace-nowrap text-sm font-bold px-3 py-1.5 rounded transition-all duration-300 ${index === activeStepIndex
                                                 ? 'text-cyan-400 bg-slate-800 border border-cyan-500/30'
@@ -338,14 +303,12 @@ const SafetyModuleCanvas = () => {
                                         </div>
                                     </button>
 
-                                    {/* Dashed Line Connector (Rendered between steps) */}
                                     {index < stepsData.length - 1 && (
                                         <div className="w-24 h-0.5 border-t-2 border-dashed border-slate-700 mx-2 mt-8"></div>
                                     )}
                                 </div>
                             ))}
 
-                            {/* Add Step Button - Aligned in the same row */}
                             <div className="ml-8 mt-1 flex items-center">
                                 <button
                                     onClick={() => {
@@ -354,11 +317,11 @@ const SafetyModuleCanvas = () => {
                                             id: newId,
                                             title: 'New Step',
                                             script: 'Describe the action for this step...',
-                                            arrowTarget: [0, 1.5, 0], // Default center
+                                            arrowTarget: [0, 1.5, 0],
                                             arrowPosition: [2, 2, 2]
                                         };
                                         setStepsData([...stepsData, newStep]);
-                                        setActiveStepIndex(stepsData.length); // Select new step
+                                        setActiveStepIndex(stepsData.length);
                                     }}
                                     className="w-14 h-14 rounded-xl border-2 border-slate-600 bg-slate-800 flex items-center justify-center text-slate-400 hover:text-cyan-400 hover:border-cyan-400 hover:bg-slate-700 transition-all shadow-lg"
                                     title="Add Step"
@@ -381,15 +344,12 @@ const SafetyModuleCanvas = () => {
                     {/* --- FIXED DROPDOWN --- */}
                     <div className="relative">
                         <button
-                            // 1. Toggle state on click instead of hover
                             onClick={() => setEnvMenuOpen(!isEnvMenuOpen)}
                             className={`p-2 rounded transition-colors flex items-center space-x-2 ${isEnvMenuOpen ? 'text-cyan-400 bg-slate-700' : 'text-slate-400 hover:text-cyan-400 hover:bg-slate-700'}`}
                             title="Environment"
                         >
                             <Globe className="h-5 w-5" />
                         </button>
-
-                        {/* 2. Show/Hide based on 'isEnvMenuOpen' state */}
                         {isEnvMenuOpen && (
                             <div className="absolute top-full left-0 mt-2 w-32 bg-slate-800 border border-slate-700 rounded-md shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                                 {['grid', 'warehouse'].map(env => (
@@ -397,7 +357,7 @@ const SafetyModuleCanvas = () => {
                                         key={env}
                                         onClick={() => {
                                             setEnvironment(env);
-                                            setEnvMenuOpen(false); // 3. Close menu when an item is selected
+                                            setEnvMenuOpen(false);
                                         }}
                                         className={`w-full text-left px-4 py-2 text-sm hover:bg-slate-700 capitalize ${environment === env ? 'text-cyan-400' : 'text-slate-300'}`}
                                     >
@@ -420,60 +380,37 @@ const SafetyModuleCanvas = () => {
                     {!mounted ? (
                         <div className="flex items-center justify-center h-full text-cyan-500 animate-pulse">Loading Machinery...</div>
                     ) : (
-                        <Canvas camera={{ position: [2, 1.5, 3], fov: 45 }}>
+                        <Canvas camera={{ position: [3, 3, 4], fov: 45 }}>
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
                             <spotLight position={[-5, 5, 5]} intensity={1} color="#06b6d4" />
-
-                            {/* Controller logic for switching grid/warehouse */}
                             <EnvironmentController mode={environment} />
-
                             <Suspense fallback={null}>
                                 <Float speed={2} rotationIntensity={0.1} floatIntensity={0.2}>
-                                    <CarModel markersActive={markersActive} />
+                                    <MachineryModel markersActive={markersActive} />
                                 </Float>
-                                {/* Dynamic Arrow for current step */}
                                 <FocusArrow
                                     position={currentStep.arrowPosition as [number, number, number]}
                                     target={currentStep.arrowTarget as [number, number, number]}
                                 />
                             </Suspense>
                             <ContactShadows position={[0, -0.6, 0]} opacity={0.6} scale={10} blur={2} far={4} />
-                            <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
+                            <OrbitControls makeDefault target={[0, 1.2, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
                         </Canvas>
                     )}
                 </div>
-
 
                 {/* AI Assistant Bubble (Updated with Tabs) - Top Right Corner */}
                 {showAiLayer && (
                     <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2 w-64 pointer-events-auto">
                         <div className="bg-slate-900/95 backdrop-blur-md border border-purple-500/30 p-0 rounded-2xl rounded-br-none shadow-2xl animate-in slide-in-from-bottom-10 fade-in duration-500 w-full overflow-hidden">
-
-                            {/* Tabs Header */}
                             <div className="flex border-b border-white/10">
-                                <button
-                                    onClick={() => setActiveAiTab('assistant')}
-                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'assistant' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                                >
-                                    <Bot className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => setActiveAiTab('generator')}
-                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'generator' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                                >
-                                    <Sparkles className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => setActiveAiTab('system')}
-                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'system' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
-                                >
-                                    <Activity className="w-4 h-4" />
-                                </button>
+                                <button onClick={() => setActiveAiTab('assistant')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'assistant' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Bot className="w-4 h-4" /> </button>
+                                <button onClick={() => setActiveAiTab('generator')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'generator' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Sparkles className="w-4 h-4" /> </button>
+                                <button onClick={() => setActiveAiTab('system')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'system' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Activity className="w-4 h-4" /> </button>
                             </div>
 
                             <div className="p-4">
-                                {/* TAB 1: ASSISTANT (Diagnostics) */}
                                 {activeAiTab === 'assistant' && (
                                     <>
                                         <div className="flex items-start gap-3 mb-4">
@@ -483,26 +420,13 @@ const SafetyModuleCanvas = () => {
                                             <div>
                                                 <h4 className="text-cyan-400 text-sm font-semibold mb-1">System Diagnostics</h4>
                                                 <p className="text-slate-300 text-sm leading-relaxed">
-                                                    {markersActive
-                                                        ? "Scanning complete. Detected Engine Block overheating and ECU communication errors."
-                                                        : "Vehicle connected. Ready to scan OBDI/OBDII ports for fault codes."}
+                                                    {markersActive ? "System ready. All parameters nominal." : "Machine in standby. Checking operational status..."}
                                                 </p>
                                             </div>
                                         </div>
-                                        <div className="flex gap-2 justify-end pt-2">
-                                            {!markersActive ? (
-                                                <button onClick={() => setMarkersActive(true)} className="px-3 py-1.5 text-xs bg-cyan-600 hover:bg-cyan-500 text-white rounded font-medium shadow-lg shadow-cyan-900/20 transition-all active:scale-95 flex items-center gap-2">
-                                                    <Sparkles className="w-3 h-3" /> Run Scan
-                                                </button>
-                                            ) : (
-                                                <button onClick={() => setMarkersActive(false)} className="px-3 py-1.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-900/20 rounded font-medium transition-all flex items-center gap-2">
-                                                    <XCircle className="w-3 h-3" /> Clear Data
-                                                </button>
-                                            )}
-                                        </div>
                                     </>
                                 )}
-
+                                {/* ... Other tabs skipped for brevity since they are generic ... */}
                                 {/* TAB 2: GENERATOR (Now with Button) */}
                                 {activeAiTab === 'generator' && (
                                     <>
@@ -598,4 +522,4 @@ const SafetyModuleCanvas = () => {
     );
 };
 
-export default SafetyModuleCanvas;
+export default MachineryModuleCanvas;

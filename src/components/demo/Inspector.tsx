@@ -4,13 +4,14 @@ interface InspectorProps {
   currentScript?: string;
   currentStepTitle?: string;
   onScriptChange?: (newScript: string) => void;
+  onStepTitleChange?: (newTitle: string) => void;
   lessonName?: string;
   onLessonNameChange?: (newName: string) => void;
   lessonDuration?: string;
   onLessonDurationChange?: (newDuration: string) => void;
 }
 
-const Inspector = ({ currentScript, currentStepTitle, onScriptChange, lessonName, onLessonNameChange, lessonDuration, onLessonDurationChange }: InspectorProps) => {
+const Inspector = ({ currentScript, currentStepTitle, onScriptChange, onStepTitleChange, lessonName, onLessonNameChange, lessonDuration, onLessonDurationChange }: InspectorProps) => {
   return (
     <div className="w-80 bg-slate-900 border-l border-slate-800 flex flex-col h-full z-20">
       {/* Properties Panel */}
@@ -27,6 +28,19 @@ const Inspector = ({ currentScript, currentStepTitle, onScriptChange, lessonName
           </div>
 
           <div className="space-y-4">
+            {/* Step Title Field */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Step Title
+              </label>
+              <input
+                type="text"
+                value={currentStepTitle || ""}
+                onChange={(e) => onStepTitleChange?.(e.target.value)}
+                className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 mb-4"
+              />
+            </div>
+
             {/* Script Field (Integrated) */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
@@ -39,7 +53,7 @@ const Inspector = ({ currentScript, currentStepTitle, onScriptChange, lessonName
                 className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2 text-sm text-slate-300 focus:outline-none focus:border-cyan-500 min-h-[80px] text-xs leading-relaxed resize-none transition-colors focus:bg-slate-800/80"
               />
               <p className="mt-1 text-[11px] text-slate-500">
-                {currentStepTitle ? `Script for: ${currentStepTitle}` : "Script for current step"}
+                Script for current step
               </p>
             </div>
 

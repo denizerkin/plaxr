@@ -1,176 +1,145 @@
 "use client";
 
-import { Clock, ChevronDown, Pencil, Info, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState } from 'react';
+import Link from 'next/link';
+import {
+  Folder, ChevronDown, Pen, Info, Trash2,
+  Clock
+} from 'lucide-react';
 
-const carCourses = [
+import TimelineVisualizer from '@/components/demo/TimelineVisualizer';
+import { initialSteps as carSteps } from '@/components/demo/SafetyModuleCanva_AIPreview';
+import { initialSteps as machinerySteps } from '@/components/demo/MachineryModuleCanvas';
+
+// Define lesson metadata (Same as /src/app/lessons/page.tsx)
+const lessons = [
   {
-    id: "porsche-992-gt3rs",
-    name: "Porsche 911 GT3 RS (992) – 2022",
-    subtitle: "Track-focused GT car • Performance & safety",
-    courses: [
-      { id: 12, title: "GT3 RS Overview, Controls & Track-Day Checklist", duration: "15 min" },
-      { id: 13, title: "Roll Cage, Harness & Fire Safety Systems", duration: "20 min" },
-      { id: 14, title: "Aero Package & Adjustable Wing Setup", duration: "25 min" },
-      { id: 15, title: "PCCB Brake Inspection & Cooling Management", duration: "22 min" },
-      { id: 16, title: "Tyre Pressures, Temperature Windows & TPMS", duration: "18 min" },
-
-      { id: 17, title: "4.0L Flat-Six Oil Change & Filter Replacement", duration: "30 min" },
-      { id: 18, title: "Dry-Sump Lubrication System Inspection", duration: "20 min" },
-
-      { id: 19, title: "Brake Pads Change (Front & Rear) – PCCB / Steel Rotors", duration: "35 min" },
-      { id: 20, title: "Brake Fluid Flush (DOT 4/5.1) & Bleeding Procedure", duration: "25 min" },
-
-      { id: 21, title: "Suspension Setup: Ride Height, Toe, Camber, Caster", duration: "40 min" },
-      { id: 22, title: "GT3 RS Adaptive Dampers (PASM) – Diagnostics & Tuning", duration: "22 min" },
-
-      { id: 23, title: "Air Intake System & Throttle Bodies Cleaning", duration: "18 min" },
-      { id: 24, title: "Cooling System: Radiator Check & Airflow Optimization", duration: "20 min" },
-
-      { id: 25, title: "Nose Lift System Inspection (Front Axle Lift)", duration: "14 min" },
-      { id: 26, title: "Wheel Torque, Wheel Studs & Safety Check", duration: "12 min" },
-      { id: 27, title: "Fuel System & Octane Requirements (Track Use)", duration: "10 min" },
-
-      { id: 28, title: "Porsche Track Precision App (PTPA) Setup & Data Logging", duration: "18 min" },
-      { id: 29, title: "ECU Fault Codes & Basic Diagnostics", duration: "22 min" },
-    ],
+    id: 'car',
+    title: 'Car Diagnostics & Engine Inspection',
+    description: 'Learn to diagnose engine faults using OBDII scanners and inspect ignition components.',
+    steps: carSteps,
+    path: '/lessons/car',
+    duration: '20 min',
+    level: 'Intermediate',
+    status: 'In Progress'
   },
   {
-    id: "tesla-model-3",
-    name: "Tesla Model 3",
-    subtitle: "EV sedan • High-voltage safety",
-    courses: [
-      { id: 1, title: "Model 3 Overview & Controls", duration: "12 min" },
-      { id: 2, title: "High-Voltage Safety & Lockout/Tagout", duration: "25 min" },
-      { id: 3, title: "Battery Pack Inspection & Cooling Circuit", duration: "30 min" },
-      { id: 4, title: "Brake-by-Wire & Regenerative Braking Checks", duration: "20 min" },
-    ],
-  },
-  {
-    id: "toyota-corolla",
-    name: "Toyota Corolla",
-    subtitle: "ICE compact • Workshop fundamentals",
-    courses: [
-      { id: 5, title: "Corolla Safety Protocols & PPE", duration: "10 min" },
-      { id: 6, title: "Engine Bay Layout & Component ID", duration: "18 min" },
-      { id: 7, title: "Oil Change & Filter Replacement", duration: "22 min" },
-      { id: 8, title: "Brake System Inspection & Pad Wear", duration: "25 min" },
-    ],
-  },
-  {
-    id: "bmw-i4",
-    name: "BMW i4",
-    subtitle: "Premium EV • Diagnostics & ADAS",
-    courses: [
-      { id: 9, title: "i4 Powertrain Architecture", duration: "15 min" },
-      { id: 10, title: "Charging System & CCS Port Inspection", duration: "18 min" },
-      { id: 11, title: "ADAS Sensor Calibration (Radar/LiDAR)", duration: "28 min" },
-    ],
-  },
+    id: 'machinery',
+    title: 'Industrial Machinery Safety Protocols',
+    description: 'Master safety protocols and power-up sequences for heavy industrial equipment.',
+    steps: machinerySteps,
+    path: '/lessons/machinery',
+    duration: '30 min',
+    level: 'Beginner',
+    status: 'Ready'
+  }
 ];
 
-const LessonsView = () => {
-  const [openCarId, setOpenCarId] = useState<string | null>(carCourses[0].id);
+export default function LessonsView() {
+  const [openLessonId, setOpenLessonId] = useState<string | null>(null);
 
-  const toggleCar = (id: string) => {
-    setOpenCarId((current) => (current === id ? null : id));
+  const toggleLesson = (id: string) => {
+    setOpenLessonId(current => current === id ? null : id);
   };
 
   return (
     <div className="flex-1 bg-slate-950 p-8 overflow-y-auto">
-      <h2 className="text-2xl font-bold text-white mb-2">Course Lessons</h2>
-      <p className="text-sm text-slate-400 mb-6">
-        As a course creator, expand a vehicle to review, edit or remove its XR maintenance lessons.
-      </p>
 
-      <div className="space-y-4">
-        {carCourses.map((car) => {
-          const isOpen = openCarId === car.id;
-          return (
-            <div
-              key={car.id}
-              className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
-            >
-              {/* Car header / dropdown button */}
-              <button
-                className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-900/70 transition-colors"
-                onClick={() => toggleCar(car.id)}
+      <div className="w-full max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-white mb-2">Lesson Manager</h2>
+            <p className="text-sm text-slate-400">
+              Manage your XR training modules. Expand a folder to view the step timeline.
+            </p>
+          </div>
+          <button className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-cyan-900/20 transition-all">
+            + New Lesson
+          </button>
+        </div>
+
+        {/* Lessons List (Folders) */}
+        <div className="space-y-4">
+          {lessons.map((lesson) => {
+            const isOpen = openLessonId === lesson.id;
+
+            return (
+              <div
+                key={lesson.id}
+                className={`bg-slate-900 border rounded-xl overflow-hidden transition-all duration-300 ${isOpen ? 'border-cyan-500/50 shadow-[0_0_30px_rgba(6,182,212,0.1)]' : 'border-slate-800 hover:border-slate-700'}`}
               >
-                <div className="text-left">
-                  <h3 className="text-white font-semibold">{car.name}</h3>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {car.subtitle}
-                  </p>
+                {/* Header Row (Click to Expand) */}
+                <div
+                  onClick={() => toggleLesson(lesson.id)}
+                  className="p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-800/50 transition-colors select-none group"
+                >
+                  {/* Folder Icon */}
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center transition-colors ${isOpen ? 'bg-cyan-500/10 text-cyan-400' : 'bg-slate-800 text-slate-500 group-hover:text-slate-300'}`}>
+                    {isOpen ? <Folder className="w-6 h-6 fill-current" /> : <Folder className="w-6 h-6" />}
+                  </div>
+
+                  {/* Title & Info */}
+                  <div className="flex-1">
+                    <h3 className={`font-bold text-lg transition-colors ${isOpen ? 'text-white' : 'text-slate-300 group-hover:text-white'}`}>
+                      {lesson.title}
+                    </h3>
+                    <div className="flex items-center gap-4 mt-1">
+                      <span className="text-xs text-slate-500 flex items-center gap-1">
+                        <Clock className="w-3 h-3" /> {lesson.duration}
+                      </span>
+                      <span className="text-xs text-slate-500 px-2 py-0.5 rounded-full bg-slate-800 border border-slate-700">
+                        {lesson.level}
+                      </span>
+                      {isOpen && (
+                        <span className="text-xs text-cyan-500 font-medium">
+                          {lesson.steps.length} Steps
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Expand Chevron */}
+                  <div className={`p-2 rounded-full transition-all duration-300 ${isOpen ? 'rotate-180 bg-slate-800 text-cyan-400' : 'text-slate-500'}`}>
+                    <ChevronDown className="w-5 h-5" />
+                  </div>
                 </div>
-                <ChevronDown
-                  className={`h-5 w-5 text-slate-400 transition-transform ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
 
-              {/* Lessons list */}
-              {isOpen && (
-                <div className="border-t border-slate-800 px-4 pb-4 pt-2 space-y-3">
-                  {car.courses.map((lesson) => (
-                    <div
-                      key={lesson.id}
-                      className="bg-slate-900/70 border border-slate-800 rounded-lg p-3 flex items-center justify-between hover:border-cyan-500/50 transition-colors group"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-9 h-9 rounded-full flex items-center justify-center bg-slate-800 text-slate-400 group-hover:text-cyan-400 group-hover:bg-slate-700 transition-colors">
-                          {/* Just a simple lesson icon / bullet */}
-                          <span className="text-xs font-semibold">
-                            {lesson.id}
-                          </span>
-                        </div>
-                        <div>
-                          <h4 className="text-white text-sm font-medium group-hover:text-cyan-400 transition-colors">
-                            {lesson.title}
-                          </h4>
-                          <div className="flex items-center text-[11px] text-slate-500 mt-1 space-x-3">
-                            <span className="flex items-center">
-                              <Clock className="h-3 w-3 mr-1" />
-                              {lesson.duration}
-                            </span>
-                            <span className="text-slate-500">
-                              Lesson #{lesson.id}
-                            </span>
-                          </div>
-                        </div>
+                {/* Expanded Content: Actions & Timeline */}
+                {isOpen && (
+                  <div className="border-t border-slate-800 bg-slate-950/30 animate-in slide-in-from-top-2 duration-200">
+
+                    {/* Action Bar */}
+                    <div className="px-6 py-3 flex items-center justify-between border-b border-slate-800/50 bg-slate-900/50">
+                      <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Timeline Preview
                       </div>
-
-                      {/* Creator actions: Edit / Info / Delete */}
                       <div className="flex items-center gap-2">
-                        <button
-                          className="p-1.5 rounded-md bg-slate-800 text-slate-300 hover:bg-cyan-600 hover:text-white transition-colors"
-                          aria-label="Edit lesson"
-                        >
-                          <Pencil className="h-4 w-4" />
+                        <Link href={lesson.path}>
+                          <button className="flex items-center gap-2 px-3 py-1.5 rounded bg-cyan-600/10 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-600 hover:text-white transition-all text-xs font-bold uppercase tracking-wider">
+                            <Pen className="w-3 h-3" /> Edit Module
+                          </button>
+                        </Link>
+                        <button className="p-1.5 rounded hover:bg-slate-800 text-slate-400 hover:text-white transition-colors" title="Info">
+                          <Info className="w-4 h-4" />
                         </button>
-                        <button
-                          className="p-1.5 rounded-md bg-slate-800 text-slate-300 hover:bg-slate-700 hover:text-white transition-colors"
-                          aria-label="Lesson details"
-                        >
-                          <Info className="h-4 w-4" />
-                        </button>
-                        <button
-                          className="p-1.5 rounded-md bg-slate-800 text-slate-300 hover:bg-red-600 hover:text-white transition-colors"
-                          aria-label="Delete lesson"
-                        >
-                          <Trash2 className="h-4 w-4" />
+                        <button className="p-1.5 rounded hover:bg-red-900/20 text-slate-400 hover:text-red-400 transition-colors" title="Delete">
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          );
-        })}
+
+                    {/* Timeline Visualization */}
+                    <div className="p-6">
+                      <TimelineVisualizer steps={lesson.steps} activeStepIndex={-1} />
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
-};
-
-export default LessonsView;
+}

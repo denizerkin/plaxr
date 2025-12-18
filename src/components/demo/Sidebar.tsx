@@ -8,7 +8,6 @@ interface SidebarProps {
 
 const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
     const navItems = [
-        { name: 'Modules', id: 'modules', icon: LayoutGrid },
         { name: 'Lessons', id: 'lessons', icon: FileText },
         { name: 'Assets', id: 'assets', icon: Box },
         { name: 'Students', id: 'students', icon: Users },
@@ -27,19 +26,36 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
                 </h1>
             </div>
             <nav className="flex-1 p-4 space-y-2">
-                {navItems.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => setActiveTab(item.id)}
-                        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
-                            ? 'bg-cyan-500/10 text-cyan-400'
-                            : 'text-slate-400 hover:bg-slate-800 hover:text-white'
-                            }`}
-                    >
-                        <item.icon className="h-5 w-5" />
-                        <span className="font-medium">{item.name}</span>
-                    </button>
-                ))}
+                {navItems.map((item) => {
+                    const commonClasses = `w-full flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${activeTab === item.id
+                        ? 'bg-cyan-500/10 text-cyan-400'
+                        : 'text-slate-400 hover:bg-slate-800 hover:text-white'
+                        }`;
+
+                    if (item.id === 'lessons') {
+                        return (
+                            <Link
+                                key={item.id}
+                                href="/lessons"
+                                className={commonClasses}
+                            >
+                                <item.icon className="h-5 w-5" />
+                                <span className="font-medium">{item.name}</span>
+                            </Link>
+                        );
+                    }
+
+                    return (
+                        <button
+                            key={item.id}
+                            onClick={() => setActiveTab(item.id)}
+                            className={commonClasses}
+                        >
+                            <item.icon className="h-5 w-5" />
+                            <span className="font-medium">{item.name}</span>
+                        </button>
+                    );
+                })}
             </nav>
             <div className="p-4 border-t border-slate-800">
                 <div className="flex items-center space-x-3 text-slate-400">

@@ -1,33 +1,108 @@
 import { Box, Download, Search, Filter, Plus, Grid, List, Folder, FolderOpen } from 'lucide-react';
 import { useState } from 'react';
 
-type FolderId = 'all' | 'tesla' | 'corolla' | 'bmw' | 'gt3rs' | 'general';
+type FolderId = 'all' | 'vmm' | 'corolla' | 'bmw' | 'ncx' | 'general';
 
 const AssetsView = () => {
-    const [activeFolder, setActiveFolder] = useState<FolderId>('all');
+    const [activeFolder, setActiveFolder] = useState<FolderId>('vmm');
     const [searchTerm, setSearchTerm] = useState('');
 
     const assets = [
-        // 🚗 Tesla Model 3
-        { id: 1, name: 'Tesla Model 3 – XR Shell', type: 'Vehicle', size: '48 MB', date: '2 days ago', folder: 'tesla' as FolderId },
-        { id: 2, name: 'Tesla Model 3 – HV Battery Pack Cutaway', type: 'Component', size: '32 MB', date: '5 days ago', folder: 'tesla' as FolderId },
-        { id: 3, name: 'CCS / Type 2 Charging Station – Interactive', type: 'Equipment', size: '21 MB', date: '1 week ago', folder: 'tesla' as FolderId },
+        // 🏭 Bridgeport Series 1 VMM
+        { 
+            id: 1, 
+            name: 'Bridgeport Series 1 – J-Head (Step Pulley)', 
+            type: 'Machine', 
+            size: '142 MB', 
+            date: 'Just now', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/j-head.png' 
+        },
+        { 
+            id: 2, 
+            name: 'J-Head Assembly – Belt Drive System', 
+            type: 'Component', 
+            size: '45 MB', 
+            date: 'Just now', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/belt-drive.png' 
+        },
+        { 
+            id: 3, 
+            name: 'X-Axis Power Feed Unit (Red/White)', 
+            type: 'Electronics', 
+            size: '12 MB', 
+            date: 'Just now', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/power-feed.png'
+        },
+        { 
+            id: 4, 
+            name: 'T-Slot Work Table (Worn Surface Scan)', 
+            type: 'Component', 
+            size: '38 MB', 
+            date: 'Just now', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/knee-column.png'
+        },
+        { 
+            id: 5, 
+            name: 'Precision Machine Vise (6-inch)', 
+            type: 'Tool', 
+            size: '85 MB', 
+            date: '1 hour ago', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/machine-vise.png'
+        },
+        { 
+            id: 6, 
+            name: 'R8 Collet Set & Drawbar', 
+            type: 'Tool', 
+            size: '5 MB', 
+            date: '3 hours ago', 
+            folder: 'vmm' as FolderId,
+            imageUrl: '/images/assets/collet-drawbar.png'
+        },
 
-        // 🚗 Toyota Corolla
-        { id: 4, name: 'Toyota Corolla 2.0L Engine – Exploded View', type: 'Component', size: '27 MB', date: '3 days ago', folder: 'corolla' as FolderId },
-        { id: 5, name: 'Corolla Front Brake Caliper & Pad Set', type: 'Component', size: '9.4 MB', date: '6 days ago', folder: 'corolla' as FolderId },
+        // 🏎️ Honda NSX (NC1) - Added Previews
+        { 
+            id: 8, 
+            name: 'Honda NSX (NC1) – Full Body', 
+            type: 'Vehicle', 
+            size: '52 MB', 
+            date: '1 day ago', 
+            folder: 'ncx' as FolderId,
+            imageUrl: '/images/assets/full_body.png' // Added
+        },
+        { 
+            id: 9, 
+            name: 'Honda NSX (NC1) PCCB Front Disc & Pad', 
+            type: 'Component', 
+            size: '11 MB', 
+            date: '1 day ago', 
+            folder: 'ncx' as FolderId,
+            imageUrl: '/images/assets/disk_caliper.png' // Added
+        },
+        { 
+            id: 10, 
+            name: 'Honda NSX (NC1) Rear Wing & Aero Kit – Adjustable', 
+            type: 'Component', 
+            size: '18 MB', 
+            date: '2 days ago', 
+            folder: 'ncx' as FolderId,
+            imageUrl: '/images/assets/aero_kit.png' // Added
+        },
+        { 
+            id: 11, 
+            name: 'Honda NSX (NC1) Roll Cage & 6-Point Harness', 
+            type: 'Safety', 
+            size: '13 MB', 
+            date: '1 week ago', 
+            folder: 'ncx' as FolderId,
+            imageUrl: '/images/assets/roll_cage.png' // Added
+        },
 
-        // 🚗 BMW i4
-        { id: 6, name: 'BMW i4 – Powertrain & Motor Assembly', type: 'Vehicle', size: '39 MB', date: '4 days ago', folder: 'bmw' as FolderId },
-        { id: 7, name: 'BMW i4 ADAS Sensor Suite (Radar / Camera / LiDAR)', type: 'Sensor', size: '14 MB', date: '1 week ago', folder: 'bmw' as FolderId },
-
-        // 🏁 Porsche 911 GT3 RS (992)
-        { id: 8, name: 'Porsche 911 GT3 RS (992) – Full Body', type: 'Vehicle', size: '52 MB', date: '1 day ago', folder: 'gt3rs' as FolderId },
-        { id: 9, name: 'GT3 RS PCCB Front Disc & Pad', type: 'Component', size: '11 MB', date: '1 day ago', folder: 'gt3rs' as FolderId },
-        { id: 10, name: 'GT3 RS Rear Wing & Aero Kit – Adjustable', type: 'Component', size: '18 MB', date: '2 days ago', folder: 'gt3rs' as FolderId },
-        { id: 11, name: 'GT3 RS Roll Cage & 6-Point Harness', type: 'Safety', size: '13 MB', date: '1 week ago', folder: 'gt3rs' as FolderId },
-
-        // 🧰 General workshop & safety
+        // 🛠️ General Assets
         { id: 12, name: 'Torque Wrench – 20–200 Nm (XR Tool)', type: 'Tool', size: '3.2 MB', date: '3 days ago', folder: 'general' as FolderId },
         { id: 13, name: 'Floor Jack & Jack Stands Set', type: 'Tool', size: '7.8 MB', date: '4 days ago', folder: 'general' as FolderId },
         { id: 14, name: 'Wheel Nut & Center-Lock Kit', type: 'Component', size: '4.1 MB', date: '2 weeks ago', folder: 'general' as FolderId },
@@ -40,10 +115,8 @@ const AssetsView = () => {
 
     const folders: { id: FolderId; label: string; description: string }[] = [
         { id: 'all', label: 'All Assets', description: 'Everything in your library' },
-        { id: 'tesla', label: 'Tesla Model 3', description: 'EV training assets' },
-        { id: 'corolla', label: 'Toyota Corolla', description: 'Workshop basics' },
-        { id: 'bmw', label: 'BMW i4', description: 'Premium EV & ADAS' },
-        { id: 'gt3rs', label: 'Porsche 911 GT3 RS (992)', description: 'Track-focused GT car' },
+        { id: 'vmm', label: 'Bridgeport Series 1 VMM', description: 'Vertical Milling Machine' },
+        { id: 'ncx', label: 'Honda NSX (NC1)', description: 'Hybrid Supercar' },
         { id: 'general', label: 'General Assets', description: 'Tools, PPE & environments' },
     ];
 
@@ -59,7 +132,7 @@ const AssetsView = () => {
     });
 
     return (
-        <div className="flex-1 bg-slate-950 p-8 overflow-y-auto">
+        <div className="flex-1 bg-slate-950 p-8 overflow-y-auto h-screen font-sans">
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
@@ -147,10 +220,23 @@ const AssetsView = () => {
                         key={asset.id}
                         className="group bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:border-cyan-500/30 hover:bg-slate-900/60 transition-all cursor-pointer hover:shadow-lg hover:shadow-cyan-500/5 backdrop-blur-sm flex flex-col"
                     >
+                        {/* 🖼️ Zone d'Image / Icône Modifiée */}
                         <div className="aspect-square bg-slate-800/50 rounded-lg mb-4 flex items-center justify-center group-hover:bg-slate-800 transition-colors relative overflow-hidden border border-slate-800/50 group-hover:border-slate-700">
-                            <Box className="h-12 w-12 text-slate-600 group-hover:text-cyan-400 transition-all duration-300 group-hover:scale-110" />
+                            
+                            {/* LOGIQUE D'AFFICHAGE CONDITIONNEL */}
+                            {/* Si une image existe, on l'affiche */}
+                            {(asset as any).imageUrl ? (
+                                <img 
+                                    src={(asset as any).imageUrl} 
+                                    alt={asset.name}
+                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                />
+                            ) : (
+                                // Sinon, on garde l'icône par défaut
+                                <Box className="h-12 w-12 text-slate-600 group-hover:text-cyan-400 transition-all duration-300 group-hover:scale-110" />
+                            )}
 
-                            {/* Overlay Actions */}
+                            {/* Overlay Actions (Toujours par dessus) */}
                             <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
                                 <button className="p-2 bg-cyan-600 rounded-lg text-white hover:bg-cyan-500 transition-colors shadow-lg transform translate-y-2 group-hover:translate-y-0 duration-300">
                                     <Download className="h-4 w-4" />

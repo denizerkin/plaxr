@@ -43,7 +43,7 @@ const FocusArrow = ({ position, target }: { position: [number, number, number], 
             {/* Simple Red Triangle (3-sided cone) */}
             <mesh rotation={[Math.PI / 2, 0, 0]}>
                 <coneGeometry args={[0.2, 0.5, 3]} />
-                <meshStandardMaterial color="#ef4444" emissive="#7f1d1d" emissiveIntensity={0.5} />
+                <meshStandardMaterial color="#0d9fe6" emissive="#00d2f2" emissiveIntensity={0.5} />
             </mesh>
         </group>
     );

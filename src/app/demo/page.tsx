@@ -6,7 +6,7 @@ import Canvas from '@/components/demo/Canvas';
 import Inspector from '@/components/demo/Inspector';
 import LessonsView from '@/components/demo/views/LessonsView';
 import AssetsView from '@/components/demo/views/AssetsView';
-import StudentsView from '@/components/demo/views/StudentsView';
+import TraineesView from '@/components/demo/views/TraineesView';
 import SettingsView from '@/components/demo/views/SettingsView';
 import SafetyModuleCanvas from '@/components/demo/SafetyModuleCanva_AIPreview';
 
@@ -33,7 +33,7 @@ function DemoContent() {
 
             {activeTab === 'lessons' && <LessonsView />}
             {activeTab === 'assets' && <AssetsView />}
-            {activeTab === 'students' && <StudentsView />}
+            {activeTab === 'Trainees' && <TraineesView />}
             {activeTab === 'settings' && <SettingsView />}
         </div>
     );

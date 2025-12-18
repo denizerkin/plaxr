@@ -9,7 +9,7 @@ const LinkSidebar = () => {
     const navItems = [
         { name: 'Lessons', id: 'lessons', href: '/lessons', icon: FileText, active: pathname.startsWith('/lessons') },
         { name: 'Assets', id: 'assets', href: '/demo?view=assets', icon: Box, active: false },
-        { name: 'Students', id: 'students', href: '/demo?view=students', icon: Users, active: false },
+        { name: 'Trainees', id: 'Trainees', href: '/demo?view=Trainees', icon: Users, active: false },
         { name: 'Settings', id: 'settings', href: '/demo?view=settings', icon: Settings, active: false },
     ];
 
@@ -45,8 +45,8 @@ const LinkSidebar = () => {
                         <span className="text-xs font-bold">US</span>
                     </div>
                     <div className="text-sm">
-                        <p className="text-white font-medium">User Name</p>
-                        <p className="text-xs">Pro Plan</p>
+                        <p className="text-white font-medium">Jafar Jafar</p>
+                        <p className="text-xs">Head of XR Training - Pro Plan</p>
                     </div>
                 </div>
             </div>

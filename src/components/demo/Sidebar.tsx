@@ -10,7 +10,7 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
     const navItems = [
         { name: 'Lessons', id: 'lessons', icon: FileText },
         { name: 'Assets', id: 'assets', icon: Box },
-        { name: 'Students', id: 'students', icon: Users },
+        { name: 'Trainees', id: 'Trainees', icon: Users },
         { name: 'Settings', id: 'settings', icon: Settings },
     ];
 
@@ -63,7 +63,7 @@ const Sidebar = ({ activeTab, setActiveTab }: SidebarProps) => {
                         <span className="text-xs font-bold">US</span>
                     </div>
                     <div className="text-sm">
-                        <p className="text-white font-medium">User Name</p>
+                        <p className="text-white font-medium">Jafar Jafar</p>
                         <p className="text-xs">Pro Plan</p>
                     </div>
                 </div>

@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-const StudentsView = () => {
-  const students = [
+const TraineesView = () => {
+  const Trainees = [
     {
       id: 1,
       name: "Alice Johnson",
@@ -20,7 +20,7 @@ const StudentsView = () => {
       progress: 85,
       lastActive: "2 hours ago",
       status: "Active",
-      role: "Student",
+      position: "Junior Maintenance Technician",
     },
     {
       id: 2,
@@ -29,7 +29,7 @@ const StudentsView = () => {
       progress: 42,
       lastActive: "1 day ago",
       status: "Active",
-      role: "Student",
+      position: "Maintenance Apprentice",
     },
     {
       id: 3,
@@ -38,7 +38,7 @@ const StudentsView = () => {
       progress: 12,
       lastActive: "5 days ago",
       status: "Inactive",
-      role: "Student",
+      position: "Junior Maintenance Technician",
     },
     {
       id: 4,
@@ -47,7 +47,7 @@ const StudentsView = () => {
       progress: 98,
       lastActive: "10 mins ago",
       status: "Active",
-      role: "Team Lead",
+      position: "Team Lead",
     },
     {
       id: 5,
@@ -56,7 +56,7 @@ const StudentsView = () => {
       progress: 0,
       lastActive: "Never",
       status: "Pending",
-      role: "Student",
+      position: "Maintenance Apprentice",
     },
     {
       id: 6,
@@ -65,18 +65,18 @@ const StudentsView = () => {
       progress: 65,
       lastActive: "3 hours ago",
       status: "Active",
-      role: "Student",
+      position: "Junior Maintenance Technician",
     },
   ];
 
   const [searchTerm, setSearchTerm] = useState("");
   const [showFilters, setShowFilters] = useState(false);
   const [statusFilter, setStatusFilter] = useState<"All" | "Active" | "Inactive" | "Pending">("All");
-  const [roleFilter, setRoleFilter] = useState<"All" | "Student" | "Team Lead">("All");
+  const [positionFilter, setPositionFilter] = useState<"All" | "Maintenance Apprentice" | "Junior Maintenance Technician" | "Team Lead">("All");
 
   const normalizedSearch = searchTerm.trim().toLowerCase();
 
-  const filteredStudents = students.filter((student) => {
+  const filteredTrainees = Trainees.filter((student) => {
     const matchesSearch =
       normalizedSearch.length === 0 ||
       student.name.toLowerCase().includes(normalizedSearch) ||
@@ -85,20 +85,20 @@ const StudentsView = () => {
     const matchesStatus =
       statusFilter === "All" || student.status === statusFilter;
 
-    const matchesRole = roleFilter === "All" || student.role === roleFilter;
+    const matchesPosition = positionFilter === "All" || student.position === positionFilter;
 
-    return matchesSearch && matchesStatus && matchesRole;
+    return matchesSearch && matchesStatus && matchesPosition;
   });
 
-  const totalCount = students.length;
-  const visibleCount = filteredStudents.length;
+  const totalCount = Trainees.length;
+  const visibleCount = filteredTrainees.length;
 
   return (
     <div className="flex-1 bg-slate-950 p-8 overflow-y-auto">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white tracking-tight">Students</h2>
+          <h2 className="text-3xl font-bold text-white tracking-tight">Trainees</h2>
           <p className="text-slate-400 mt-1">
             Manage your class roster and track progress.
           </p>
@@ -113,7 +113,7 @@ const StudentsView = () => {
           </button>
           <button className="flex items-center px-4 py-2 bg-gradient-to-r from-cyan-600 to-cyan-500 hover:from-cyan-500 hover:to-cyan-400 text-white rounded-lg shadow-lg shadow-cyan-500/20 transition-all text-sm font-medium">
             <Plus className="h-4 w-4 mr-2" />
-            Add Student
+            Add Trainee
           </button>
         </div>
       </div>
@@ -125,7 +125,7 @@ const StudentsView = () => {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-slate-500" />
             <input
               type="text"
-              placeholder="Search students by name or email..."
+              placeholder="Search Trainees by name or email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-slate-900/50 border border-slate-800 rounded-xl pl-10 pr-4 py-3 text-slate-200 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all placeholder:text-slate-600"
@@ -134,7 +134,7 @@ const StudentsView = () => {
         </div>
         <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-3 flex items-center justify-between px-6">
           <span className="text-slate-400 text-sm font-medium">
-            Total Students
+            Total Trainees
           </span>
           <span className="text-2xl font-bold text-white">{totalCount}</span>
         </div>
@@ -166,21 +166,21 @@ const StudentsView = () => {
 
           <div className="flex flex-wrap gap-2">
             <span className="text-xs text-slate-400 uppercase tracking-wide">
-              Role
+              Position
             </span>
-            {["All", "Student", "Team Lead"].map((role) => (
+            {["All", "Maintenance Apprentice", "Junior Maintenance Technician" ,"Team Lead"].map((position) => (
               <button
-                key={role}
+                key={position}
                 onClick={() =>
-                  setRoleFilter(role as "All" | "Student" | "Team Lead")
+                  setPositionFilter(position as "All" | "Junior Maintenance Technician" | "Maintenance Apprentice" | "Team Lead")
                 }
                 className={`px-3 py-1 rounded-full text-xs border transition-colors ${
-                  roleFilter === role
+                  positionFilter === position
                     ? "bg-cyan-600/20 text-cyan-300 border-cyan-500/40"
                     : "bg-slate-900/60 text-slate-400 border-slate-700 hover:border-cyan-500/40 hover:text-cyan-200"
                 }`}
               >
-                {role}
+                {position}
               </button>
             ))}
           </div>
@@ -193,8 +193,8 @@ const StudentsView = () => {
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-900/80 text-slate-400 font-medium border-b border-slate-800">
               <tr>
-                <th className="px-6 py-6">Student</th>
-                <th className="px-6 py-6">Role</th>
+                <th className="px-6 py-6">Trainee</th>
+                <th className="px-6 py-6">Position</th>
                 <th className="px-6 py-6">Course Progress</th>
                 <th className="px-6 py-6">Last Active</th>
                 <th className="px-6 py-6">Status</th>
@@ -202,7 +202,7 @@ const StudentsView = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/50">
-              {filteredStudents.map((student) => (
+              {filteredTrainees.map((student) => (
                 <tr
                   key={student.id}
                   className="group hover:bg-slate-800/40 transition-colors"
@@ -222,7 +222,7 @@ const StudentsView = () => {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-6 text-slate-300">{student.role}</td>
+                  <td className="px-6 py-6 text-slate-300">{student.position}</td>
                   <td className="px-6 py-6">
                     <div className="w-full max-w-xs">
                       <div className="flex justify-between text-xs mb-1">
@@ -279,13 +279,13 @@ const StudentsView = () => {
                 </tr>
               ))}
 
-              {filteredStudents.length === 0 && (
+              {filteredTrainees.length === 0 && (
                 <tr>
                   <td
                     colSpan={6}
                     className="px-6 py-8 text-center text-slate-500 text-sm"
                   >
-                    No students match your search or filters.
+                    No Trainees match your search or filters.
                   </td>
                 </tr>
               )}
@@ -324,4 +324,4 @@ const StudentsView = () => {
   );
 };
 
-export default StudentsView;
+export default TraineesView;

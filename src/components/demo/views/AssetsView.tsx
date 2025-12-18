@@ -7,7 +7,7 @@ const AssetsView = () => {
     const [activeFolder, setActiveFolder] = useState<FolderId>('vmm');
     const [searchTerm, setSearchTerm] = useState('');
 
-    const basePath = process.env.NODE_ENV === 'production' ? 'plaxr' : '';
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
     const assets = [
         // 🏭 Bridgeport Series 1 VMM

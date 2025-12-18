@@ -135,6 +135,7 @@ const AssetsView = () => {
 
     return (
         <div className="flex-1 bg-slate-950 p-8 overflow-y-auto h-screen font-sans">
+            <div style={{ display: 'none' }}>{basePath}</div>
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>

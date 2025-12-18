@@ -7,6 +7,8 @@ const AssetsView = () => {
     const [activeFolder, setActiveFolder] = useState<FolderId>('vmm');
     const [searchTerm, setSearchTerm] = useState('');
 
+    const basePath = process.env.NODE_ENV === 'production' ? 'plaxr' : '';
+
     const assets = [
         // 🏭 Bridgeport Series 1 VMM
         { 
@@ -16,7 +18,7 @@ const AssetsView = () => {
             size: '142 MB', 
             date: 'Just now', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/j-head.png' 
+            imageUrl: `${basePath}/images/assets/j-head.png` 
         },
         { 
             id: 2, 
@@ -25,7 +27,7 @@ const AssetsView = () => {
             size: '45 MB', 
             date: 'Just now', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/belt-drive.png' 
+            imageUrl: `${basePath}/images/assets/belt-drive.png` 
         },
         { 
             id: 3, 
@@ -34,7 +36,7 @@ const AssetsView = () => {
             size: '12 MB', 
             date: 'Just now', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/power-feed.png'
+            imageUrl: `${basePath}/images/assets/power-feed.png`
         },
         { 
             id: 4, 
@@ -43,7 +45,7 @@ const AssetsView = () => {
             size: '38 MB', 
             date: 'Just now', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/knee-column.png'
+            imageUrl: `${basePath}/images/assets/knee-column.png`
         },
         { 
             id: 5, 
@@ -52,7 +54,7 @@ const AssetsView = () => {
             size: '85 MB', 
             date: '1 hour ago', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/machine-vise.png'
+            imageUrl: `${basePath}/images/assets/machine-vise.png`
         },
         { 
             id: 6, 
@@ -61,7 +63,7 @@ const AssetsView = () => {
             size: '5 MB', 
             date: '3 hours ago', 
             folder: 'vmm' as FolderId,
-            imageUrl: '/images/assets/collet-drawbar.png'
+            imageUrl: `${basePath}/images/assets/collet-drawbar.png`
         },
 
         // 🏎️ Honda NSX (NC1) - Added Previews
@@ -72,7 +74,7 @@ const AssetsView = () => {
             size: '52 MB', 
             date: '1 day ago', 
             folder: 'ncx' as FolderId,
-            imageUrl: '/images/assets/full_body.png' // Added
+            imageUrl: `${basePath}/images/assets/full_body.png` // Added
         },
         { 
             id: 9, 
@@ -81,7 +83,7 @@ const AssetsView = () => {
             size: '11 MB', 
             date: '1 day ago', 
             folder: 'ncx' as FolderId,
-            imageUrl: '/images/assets/disk_caliper.png' // Added
+            imageUrl: `${basePath}/images/assets/disk_caliper.png` // Added
         },
         { 
             id: 10, 
@@ -90,7 +92,7 @@ const AssetsView = () => {
             size: '18 MB', 
             date: '2 days ago', 
             folder: 'ncx' as FolderId,
-            imageUrl: '/images/assets/aero_kit.png' // Added
+            imageUrl: `${basePath}/images/assets/aero_kit.png` // Added
         },
         { 
             id: 11, 
@@ -99,7 +101,7 @@ const AssetsView = () => {
             size: '13 MB', 
             date: '1 week ago', 
             folder: 'ncx' as FolderId,
-            imageUrl: '/images/assets/roll_cage.png' // Added
+            imageUrl: `${basePath}/images/assets/roll_cage.png` // Added
         },
 
         // 🛠️ General Assets

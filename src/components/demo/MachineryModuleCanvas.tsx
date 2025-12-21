@@ -1,6 +1,6 @@
 "use client";
 import { useState, Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
     useGLTF,
     OrbitControls,
@@ -14,7 +14,7 @@ import {
 import {
     Move, Maximize, RotateCw, MousePointer2, Globe, Sparkles,
     CheckCircle2, Flame, Fan, XCircle, Box, Layers, Settings, ChevronRight, ChevronLeft,
-    ArrowRight, PlayCircle, Mic, Square, Bot, Activity, Music, Play, Pause, AlertCircle, Plus, Trash2, Volume2, Loader2
+    ArrowRight, PlayCircle, Mic, Square, Bot, Activity, Music, Play, Pause, AlertCircle, Plus, Trash2, Volume2, Loader2, Minimize2
 } from 'lucide-react';
 import Link from 'next/link';
 import * as THREE from 'three';
@@ -73,31 +73,106 @@ export const initialSteps = [
         id: 1,
         title: 'Start Machine',
         script: 'Locate the green start button on the main control panel. Press it firmly to initiate the motor startup sequence.',
-        arrowTarget: [0, 3.5, 0.5],
-        arrowPosition: [1.5, 3.5, 2.0]
+        arrowTarget: [0.2, 1.2, -0.5], // Lowered significantly
+        arrowPosition: [0.6, 1.5, 0], // Just above
+        camPos: [0, 2.0, 4.0],
+        lookAt: [0, 1.0, -0.5],
     },
     {
         id: 2,
         title: 'Safety Measures',
         script: 'Ensure the clear safety guard is lowered completely. Verify the emergency stop button is not engaged and is easily accessible.',
-        arrowTarget: [0, 3.8, -0.5],
-        arrowPosition: [-1.5, 4.0, 1.0]
+        arrowTarget: [0, 1.5, -0.5],
+        arrowPosition: [0.5, 2.2, -0.8], // Higher and further out to side
+        camPos: [-2.5, 2.5, 2.5],
+        lookAt: [0, 1.0, -0.5],
     },
     {
         id: 3,
         title: 'Material Placement',
         script: 'Place the material securely on the cutting bed. Ensure it is flush against the back fence and clamped down if necessary.',
-        arrowTarget: [0, 2.6, 0],
-        arrowPosition: [0, 3.5, 2.0]
+        arrowTarget: [0, 1.2, 0.5], // Lowered significantly
+        arrowPosition: [0.2, 1.5, 0.6], // Just above
+        camPos: [3.5, 2.0, 3.5],
+        lookAt: [0, 1.0, 0],
     },
     {
         id: 4,
         title: 'Operation',
         script: 'With hands clear of the blade path, slowly pull the handle down to cut through the material using steady, even pressure.',
-        arrowTarget: [0, 3.0, 0],
-        arrowPosition: [2.0, 4.0, 2.0]
+        arrowTarget: [0, 1.2, 0], // Handle slightly higher
+        arrowPosition: [0.6, 1.8, 0.6], // Further out and up
+        camPos: [3.0, 2.0, 3.0],
+        lookAt: [0, 1.0, 0],
     }
 ];
+
+/* --- 3D Component: Camera Manager (Transition & Release) --- */
+const CameraManager = ({
+    targetPosition,
+    targetLookAt
+}: {
+    targetPosition: [number, number, number],
+    targetLookAt: [number, number, number]
+}) => {
+    const { camera } = useThree();
+    const isAnimating = useRef(false);
+    const startTime = useRef(0);
+    const startPos = useRef(new THREE.Vector3());
+    const startTarget = useRef(new THREE.Vector3());
+    const controlsRef = useRef<any>(null);
+
+    // Identify if targets changed to trigger new animation
+    const prevPos = useRef(targetPosition);
+    const prevLook = useRef(targetLookAt);
+
+    useFrame((state) => {
+        const controls = state.controls as any;
+        if (!controls) return;
+
+        // Capture controls ref for init
+        controlsRef.current = controls;
+
+        // Check for prop changes
+        const posChanged = prevPos.current.some((v, i) => Math.abs(v - targetPosition[i]) > 0.01);
+        const lookChanged = prevLook.current.some((v, i) => Math.abs(v - targetLookAt[i]) > 0.01);
+
+        if (posChanged || lookChanged) {
+            // Trigger Animation
+            isAnimating.current = true;
+            startTime.current = state.clock.elapsedTime;
+            startPos.current.copy(camera.position);
+            startTarget.current.copy(controls.target);
+
+            // Update refs
+            prevPos.current = targetPosition;
+            prevLook.current = targetLookAt;
+        }
+
+        if (isAnimating.current) {
+            const elapsed = state.clock.elapsedTime - startTime.current;
+            const duration = 1.5; // 1.5s transition
+            const t = Math.min(elapsed / duration, 1);
+
+            // Cubic ease out
+            const ease = 1 - Math.pow(1 - t, 3);
+
+            // Interpolate Camera Position
+            camera.position.lerpVectors(startPos.current, new THREE.Vector3(...targetPosition), ease);
+
+            // Interpolate Controls Target
+            controls.target.lerpVectors(startTarget.current, new THREE.Vector3(...targetLookAt), ease);
+            controls.update();
+
+            // Stop condition
+            if (t >= 1) {
+                isAnimating.current = false;
+            }
+        }
+    });
+
+    return null;
+};
 
 /* --- 1. Machinery Model Wrapper --- */
 const MachineryModel = ({ markersActive }: EngineModelProps) => {
@@ -178,7 +253,7 @@ const AudioPlayer = ({ text }: { text: string }) => {
 
 const MachineryModuleCanvas = () => {
     const [environment, setEnvironment] = useState('grid');
-    const [showAiLayer, setShowAiLayer] = useState(true);
+    const [showAiLayer, setShowAiLayer] = useState(false);
     const [markersActive, setMarkersActive] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [isEnvMenuOpen, setEnvMenuOpen] = useState(false);
@@ -318,7 +393,9 @@ const MachineryModuleCanvas = () => {
                                             title: 'New Step',
                                             script: 'Describe the action for this step...',
                                             arrowTarget: [0, 1.5, 0],
-                                            arrowPosition: [2, 2, 2]
+                                            arrowPosition: [2, 2, 2],
+                                            camPos: [3, 2, 3],
+                                            lookAt: [0, 1.0, 0]
                                         };
                                         setStepsData([...stepsData, newStep]);
                                         setActiveStepIndex(stepsData.length);
@@ -369,7 +446,11 @@ const MachineryModuleCanvas = () => {
                     </div>
                     {/* ---------------------- */}
 
-                    <button onClick={() => setShowAiLayer(!showAiLayer)} className={`p-2 rounded transition-colors ml-2 ${showAiLayer ? 'text-purple-400 bg-purple-900/30' : 'text-slate-400 hover:text-purple-400'}`}>
+                    <button
+                        onClick={() => setShowAiLayer(!showAiLayer)}
+                        className={`p-2 rounded transition-colors ml-2 ${showAiLayer ? 'text-purple-400 bg-purple-900/30' : 'text-slate-400 hover:text-purple-400'}`}
+                        title="Toggle AI Assistant"
+                    >
                         <Sparkles className="h-5 w-5" />
                     </button>
                 </div>
@@ -380,7 +461,7 @@ const MachineryModuleCanvas = () => {
                     {!mounted ? (
                         <div className="flex items-center justify-center h-full text-cyan-500 animate-pulse">Loading Machinery...</div>
                     ) : (
-                        <Canvas camera={{ position: [3, 3, 4], fov: 45 }}>
+                        <Canvas camera={{ position: [0, 2.0, 4.0], fov: 45 }}>
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
                             <spotLight position={[-5, 5, 5]} intensity={1} color="#06b6d4" />
@@ -390,24 +471,77 @@ const MachineryModuleCanvas = () => {
                                     <MachineryModel markersActive={markersActive} />
                                 </Float>
                                 <FocusArrow
-                                    position={currentStep.arrowPosition as [number, number, number]}
-                                    target={currentStep.arrowTarget as [number, number, number]}
+                                    position={
+                                        ((currentStep as any).arrowPosition)
+                                            ? (currentStep.arrowPosition as [number, number, number])
+                                            : (initialSteps.find(s => s.id === currentStep.id)?.arrowPosition as [number, number, number] || [0, 2, 0])
+                                    }
+                                    target={
+                                        ((currentStep as any).arrowTarget)
+                                            ? (currentStep.arrowTarget as [number, number, number])
+                                            : (initialSteps.find(s => s.id === currentStep.id)?.arrowTarget as [number, number, number] || [0, 0, 0])
+                                    }
+                                />
+                                <CameraManager
+                                    targetPosition={
+                                        ((currentStep as any).camPos)
+                                            ? (currentStep as any).camPos
+                                            : (initialSteps.find(s => s.id === currentStep.id) as any)?.camPos || [4, 4, 4]
+                                    }
+                                    targetLookAt={
+                                        ((currentStep as any).lookAt)
+                                            ? (currentStep as any).lookAt
+                                            : (initialSteps.find(s => s.id === currentStep.id) as any)?.lookAt || [0, 3, 0]
+                                    }
                                 />
                             </Suspense>
                             <ContactShadows position={[0, -0.6, 0]} opacity={0.6} scale={10} blur={2} far={4} />
-                            <OrbitControls makeDefault target={[0, 1.2, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
+                            <OrbitControls makeDefault target={[0, 1.0, 0]} minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
                         </Canvas>
                     )}
                 </div>
 
                 {/* AI Assistant Bubble (Updated with Tabs) - Top Right Corner */}
-                {showAiLayer && (
-                    <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2 w-64 pointer-events-auto">
-                        <div className="bg-slate-900/95 backdrop-blur-md border border-purple-500/30 p-0 rounded-2xl rounded-br-none shadow-2xl animate-in slide-in-from-bottom-10 fade-in duration-500 w-full overflow-hidden">
+                <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2 w-64 pointer-events-auto transition-all duration-300">
+                    {!showAiLayer ? (
+                        <button
+                            onClick={() => setShowAiLayer(true)}
+                            className="w-12 h-12 rounded-full bg-slate-900/90 backdrop-blur border border-purple-500/50 flex items-center justify-center text-purple-400 hover:text-white hover:bg-slate-800 hover:scale-110 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] group"
+                            title="Open AI Assistant"
+                        >
+                            <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                        </button>
+                    ) : (
+                        <div className="bg-slate-900/95 backdrop-blur-md border border-purple-500/30 p-0 rounded-2xl rounded-br-none shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 w-full overflow-hidden relative">
+
+                            {/* Tabs Header */}
                             <div className="flex border-b border-white/10">
-                                <button onClick={() => setActiveAiTab('assistant')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'assistant' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Bot className="w-4 h-4" /> </button>
-                                <button onClick={() => setActiveAiTab('generator')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'generator' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Sparkles className="w-4 h-4" /> </button>
-                                <button onClick={() => setActiveAiTab('system')} className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'system' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}> <Activity className="w-4 h-4" /> </button>
+                                <button
+                                    onClick={() => setActiveAiTab('assistant')}
+                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'assistant' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+                                >
+                                    <Bot className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setActiveAiTab('generator')}
+                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'generator' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+                                >
+                                    <Sparkles className="w-4 h-4" />
+                                </button>
+                                <button
+                                    onClick={() => setActiveAiTab('system')}
+                                    className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'system' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
+                                >
+                                    <Activity className="w-4 h-4" />
+                                </button>
+                                {/* Minimize Button as a Tab */}
+                                <button
+                                    onClick={() => setShowAiLayer(false)}
+                                    className="flex-1 py-3 flex justify-center transition-colors text-slate-500 hover:text-red-400 hover:bg-white/5"
+                                    title="Minimize"
+                                >
+                                    <Minimize2 className="w-4 h-4" />
+                                </button>
                             </div>
 
                             <div className="p-4">
@@ -495,8 +629,8 @@ const MachineryModuleCanvas = () => {
                                 )}
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
 
 
                 {/* Bottom Status Bar */}
@@ -518,7 +652,7 @@ const MachineryModuleCanvas = () => {
                 onLessonDurationChange={setLessonDuration}
             />
 
-        </div>
+        </div >
     );
 };
 

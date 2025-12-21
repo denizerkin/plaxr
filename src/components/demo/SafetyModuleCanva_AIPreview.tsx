@@ -1,6 +1,6 @@
 "use client";
 import { useState, Suspense, useEffect, useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import {
     useGLTF,
     OrbitControls,
@@ -14,7 +14,7 @@ import {
 import {
     Move, Maximize, RotateCw, MousePointer2, Globe, Sparkles,
     CheckCircle2, Flame, Fan, XCircle, Box, Layers, Settings, ChevronRight, ChevronLeft,
-    ArrowRight, PlayCircle, Mic, Square, Bot, Activity, Music, Play, Pause, AlertCircle, Plus, Trash2, Volume2, Loader2
+    ArrowRight, PlayCircle, Mic, Square, Bot, Activity, Music, Play, Pause, AlertCircle, Plus, Trash2, Volume2, Loader2, X, ChevronDown, Minimize2
 } from 'lucide-react';
 import Link from 'next/link';
 import * as THREE from 'three';
@@ -79,30 +79,106 @@ export const initialSteps = [
         title: 'Diagnostics Start',
         script: 'Connect the OBDII scanner to the port located under the driver side dashboard. Scan for error codes. We are looking for P0300 (Random/Multiple Cylinder Misfire).',
         arrowTarget: [0.5, 1.4, 0.5], // Dashboard area
-        arrowPosition: [1.0, 1.8, 0.8] // Closer zoom
+        arrowPosition: [0.5, 1.8, 0.5], // Directly above, clearly pointing down
+        camPos: [3.2, 2.2, 1.8], // Wider side view
+        lookAt: [0.5, 1.2, 0.5]
     },
     {
         id: 2,
         title: 'Engine Access',
         script: 'Open the hood and secure the prop rod. Locust the plastic engine cover. Pull upwards gently on the corners to disengage the rubber grommets and set the cover aside.',
         arrowTarget: [0, 1.5, 1.5], // Top of engine
-        arrowPosition: [0, 2.0, 2.0] // Closer zoom
+        arrowPosition: [0, 2.0, 1.5], // Clearly above
+        camPos: [0, 4.5, 4.5], // Wider high angle
+        lookAt: [0, 0.5, 0.5]
     },
     {
         id: 3,
         title: 'Component Inspection',
         script: 'Inspect the ignition coils for any visible cracks or signs of arcing. Remove the coil from Cylinder 3 and inspect the spark plug tip for fouling or excessive gap wear.',
         arrowTarget: [0.2, 1.4, 1.5], // Specific cylinder area
-        arrowPosition: [0.4, 1.8, 1.8] // Very close zoom
+        arrowPosition: [0.2, 1.9, 1.9], // Further away
+        camPos: [2.0, 3.0, 3.0], // Wider ISO view
+        lookAt: [0, 1.0, 1.0]
     },
     {
         id: 4,
         title: 'Verification',
         script: 'Reinstall the spark plug and coil. Clear the error codes on the scanner. Start the engine and monitor the idle RPM. Ensure the check engine light does not return.',
         arrowTarget: [0, 1.3, 1.5], // General engine view
-        arrowPosition: [-0.8, 1.8, 2.0] // Closer zoom
+        arrowPosition: [-0.5, 1.8, 1.8], // Further away
+        camPos: [-4.0, 3.0, 4.0], // Much wider overview
+        lookAt: [0, 0.5, 0]
     }
 ];
+
+/* --- 3D Component: Camera Manager --- */
+/* --- 3D Component: Camera Manager (Transition & Release) --- */
+const CameraManager = ({
+    targetPosition,
+    targetLookAt
+}: {
+    targetPosition: [number, number, number],
+    targetLookAt: [number, number, number]
+}) => {
+    const { camera } = useThree();
+    const isAnimating = useRef(false);
+    const startTime = useRef(0);
+    const startPos = useRef(new THREE.Vector3());
+    const startTarget = useRef(new THREE.Vector3());
+    const controlsRef = useRef<any>(null);
+
+    // Identify if targets changed to trigger new animation
+    const prevPos = useRef(targetPosition);
+    const prevLook = useRef(targetLookAt);
+
+    useFrame((state) => {
+        const controls = state.controls as any;
+        if (!controls) return;
+
+        // Capture controls ref for init
+        controlsRef.current = controls;
+
+        // Check for prop changes
+        const posChanged = prevPos.current.some((v, i) => Math.abs(v - targetPosition[i]) > 0.01);
+        const lookChanged = prevLook.current.some((v, i) => Math.abs(v - targetLookAt[i]) > 0.01);
+
+        if (posChanged || lookChanged) {
+            // Trigger Animation
+            isAnimating.current = true;
+            startTime.current = state.clock.elapsedTime;
+            startPos.current.copy(camera.position);
+            startTarget.current.copy(controls.target);
+
+            // Update refs
+            prevPos.current = targetPosition;
+            prevLook.current = targetLookAt;
+        }
+
+        if (isAnimating.current) {
+            const elapsed = state.clock.elapsedTime - startTime.current;
+            const duration = 1.5; // 1.5s transition
+            const t = Math.min(elapsed / duration, 1);
+
+            // Cubic ease out
+            const ease = 1 - Math.pow(1 - t, 3);
+
+            // Interpolate Camera Position
+            camera.position.lerpVectors(startPos.current, new THREE.Vector3(...targetPosition), ease);
+
+            // Interpolate Controls Target
+            controls.target.lerpVectors(startTarget.current, new THREE.Vector3(...targetLookAt), ease);
+            controls.update();
+
+            // Stop condition
+            if (t >= 1) {
+                isAnimating.current = false;
+            }
+        }
+    });
+
+    return null;
+};
 
 /* --- Simulated Audio Player Component (Now with TTS) --- */
 const AudioPlayer = ({ text }: { text: string }) => {
@@ -206,7 +282,7 @@ import Inspector from './Inspector'; // Import the Inspector component
 
 const SafetyModuleCanvas = () => {
     const [environment, setEnvironment] = useState('grid');
-    const [showAiLayer, setShowAiLayer] = useState(true);
+    const [showAiLayer, setShowAiLayer] = useState(false);
     const [markersActive, setMarkersActive] = useState(false);
     const [mounted, setMounted] = useState(false);
     const [isEnvMenuOpen, setEnvMenuOpen] = useState(false);
@@ -355,7 +431,9 @@ const SafetyModuleCanvas = () => {
                                             title: 'New Step',
                                             script: 'Describe the action for this step...',
                                             arrowTarget: [0, 1.5, 0], // Default center
-                                            arrowPosition: [2, 2, 2]
+                                            arrowPosition: [0.5, 2, 0.5],
+                                            camPos: [3, 3, 3],
+                                            lookAt: [0, 0, 0]
                                         };
                                         setStepsData([...stepsData, newStep]);
                                         setActiveStepIndex(stepsData.length); // Select new step
@@ -420,7 +498,7 @@ const SafetyModuleCanvas = () => {
                     {!mounted ? (
                         <div className="flex items-center justify-center h-full text-cyan-500 animate-pulse">Loading Machinery...</div>
                     ) : (
-                        <Canvas camera={{ position: [2, 1.5, 3], fov: 45 }}>
+                        <Canvas camera={{ position: [3.2, 2.2, 1.8], fov: 45 }}>
                             <ambientLight intensity={0.5} />
                             <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
                             <spotLight position={[-5, 5, 5]} intensity={1} color="#06b6d4" />
@@ -434,21 +512,49 @@ const SafetyModuleCanvas = () => {
                                 </Float>
                                 {/* Dynamic Arrow for current step */}
                                 <FocusArrow
-                                    position={currentStep.arrowPosition as [number, number, number]}
-                                    target={currentStep.arrowTarget as [number, number, number]}
+                                    position={
+                                        ((currentStep as any).arrowPosition)
+                                            ? (currentStep.arrowPosition as [number, number, number])
+                                            : (initialSteps.find(s => s.id === currentStep.id)?.arrowPosition as [number, number, number] || [0, 2, 0])
+                                    }
+                                    target={
+                                        ((currentStep as any).arrowTarget)
+                                            ? (currentStep.arrowTarget as [number, number, number])
+                                            : (initialSteps.find(s => s.id === currentStep.id)?.arrowTarget as [number, number, number] || [0, 0, 0])
+                                    }
+                                />
+                                <CameraManager
+                                    targetPosition={
+                                        ((currentStep as any).camPos)
+                                            ? (currentStep as any).camPos
+                                            : (initialSteps.find(s => s.id === currentStep.id) as any)?.camPos || [4, 2, 4]
+                                    }
+                                    targetLookAt={
+                                        ((currentStep as any).lookAt)
+                                            ? (currentStep as any).lookAt
+                                            : (initialSteps.find(s => s.id === currentStep.id) as any)?.lookAt || [0, 0, 0]
+                                    }
                                 />
                             </Suspense>
                             <ContactShadows position={[0, -0.6, 0]} opacity={0.6} scale={10} blur={2} far={4} />
-                            <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} />
+                            <OrbitControls makeDefault minPolarAngle={0} maxPolarAngle={Math.PI / 1.75} target={[0.5, 1.2, 0.5]} />
                         </Canvas>
                     )}
                 </div>
 
 
                 {/* AI Assistant Bubble (Updated with Tabs) - Top Right Corner */}
-                {showAiLayer && (
-                    <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2 w-64 pointer-events-auto">
-                        <div className="bg-slate-900/95 backdrop-blur-md border border-purple-500/30 p-0 rounded-2xl rounded-br-none shadow-2xl animate-in slide-in-from-bottom-10 fade-in duration-500 w-full overflow-hidden">
+                <div className="absolute top-4 right-4 z-50 flex flex-col items-end gap-2 w-64 pointer-events-auto transition-all duration-300">
+                    {!showAiLayer ? (
+                        <button
+                            onClick={() => setShowAiLayer(true)}
+                            className="w-12 h-12 rounded-full bg-slate-900/90 backdrop-blur border border-purple-500/50 flex items-center justify-center text-purple-400 hover:text-white hover:bg-slate-800 hover:scale-110 transition-all shadow-[0_0_20px_rgba(168,85,247,0.4)] group"
+                            title="Open AI Assistant"
+                        >
+                            <Sparkles className="w-6 h-6 group-hover:rotate-12 transition-transform" />
+                        </button>
+                    ) : (
+                        <div className="bg-slate-900/95 backdrop-blur-md border border-purple-500/30 p-0 rounded-2xl rounded-br-none shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 w-full overflow-hidden relative">
 
                             {/* Tabs Header */}
                             <div className="flex border-b border-white/10">
@@ -469,6 +575,14 @@ const SafetyModuleCanvas = () => {
                                     className={`flex-1 py-3 flex justify-center transition-colors ${activeAiTab === 'system' ? 'bg-purple-500/10 text-purple-400 border-b-2 border-purple-500' : 'text-slate-500 hover:text-slate-300 hover:bg-white/5'}`}
                                 >
                                     <Activity className="w-4 h-4" />
+                                </button>
+                                {/* Minimize Button as a Tab */}
+                                <button
+                                    onClick={() => setShowAiLayer(false)}
+                                    className="flex-1 py-3 flex justify-center transition-colors text-slate-500 hover:text-red-400 hover:bg-white/5"
+                                    title="Minimize"
+                                >
+                                    <Minimize2 className="w-4 h-4" />
                                 </button>
                             </div>
 
@@ -571,8 +685,8 @@ const SafetyModuleCanvas = () => {
                                 )}
                             </div>
                         </div>
-                    </div>
-                )}
+                    )}
+                </div>
 
 
                 {/* Bottom Status Bar */}
